@@ -18,7 +18,7 @@ export default function Home() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-transparent p-4 text-foreground">
       <Image
-        src="https://picsum.photos/seed/pokebackground/1920/1080"
+        src="https://i.imgur.com/nO0p3Yj.png"
         alt="Pokemon landscape background"
         fill
         className="object-cover -z-10"
