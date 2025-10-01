@@ -8,6 +8,8 @@ import { GuessGrid } from "./guess-grid";
 import { InstructionsModal } from "./instructions-modal";
 import { ResultsModal } from "./results-modal";
 import { useToast } from "@/hooks/use-toast";
+import { RefreshCw } from "lucide-react";
+import { Button } from "./ui/button";
 
 type GameStatus = "playing" | "won";
 type GameState = {
@@ -53,6 +55,17 @@ export function PokewordleGame({ correctPokemon, pokemonList }: PokewordleGamePr
     localStorage.setItem(`pokewordle-state`, JSON.stringify(stateToStore));
   }, [guesses, feedback, gameStatus, correctPokemon]);
 
+  const handleReset = () => {
+    setGuesses([]);
+    setFeedback([]);
+    setGameStatus("playing");
+    localStorage.removeItem('pokewordle-state');
+    toast({
+      title: "Juego reiniciado",
+      description: "¡Tus intentos han sido borrados! Puedes empezar de nuevo.",
+    });
+  };
+
   const handleGuess = (guess: string) => {
     if (gameStatus !== "playing") return;
 
@@ -96,7 +109,10 @@ export function PokewordleGame({ correctPokemon, pokemonList }: PokewordleGamePr
 
   return (
     <div className="w-full space-y-6">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button variant="ghost" size="icon" onClick={handleReset} aria-label="Reiniciar juego">
+          <RefreshCw className="h-6 w-6" />
+        </Button>
         <InstructionsModal />
       </div>
       <GuessGrid guesses={guesses} feedback={feedback} />
