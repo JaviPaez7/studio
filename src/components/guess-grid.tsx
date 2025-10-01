@@ -40,7 +40,7 @@ const statKeys: (keyof Omit<ValidatePokemonGuessOutput['guessedPokemon'], 'name'
 
 
 export function GuessGrid({ guesses, feedback }: GuessGridProps) {
-  const emptyRows = Array(6 - guesses.length).fill(null);
+  const showEmptyState = guesses.length === 0;
 
   return (
     <Card>
@@ -86,7 +86,7 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
             )
           })}
 
-          {emptyRows.map((_, index) => (
+          {showEmptyState && Array.from({ length: 6 }).map((_, index) => (
             <div key={index} className="grid grid-cols-7 gap-2">
               <div className="h-12 w-full rounded-md bg-secondary/50" />
               <div className="h-12 w-full rounded-md bg-secondary/50" />

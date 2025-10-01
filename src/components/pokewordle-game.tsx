@@ -9,8 +9,6 @@ import { InstructionsModal } from "./instructions-modal";
 import { ResultsModal } from "./results-modal";
 import { useToast } from "@/hooks/use-toast";
 
-const MAX_GUESSES = 6;
-
 type GameStatus = "playing" | "won";
 type GameState = {
   guesses: string[];
