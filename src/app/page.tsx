@@ -1,3 +1,37 @@
+import { getDailyPokemon } from '@/lib/daily-pokemon';
+import { POKEMON_LIST } from '@/lib/pokemon';
+import { PokewordleGame } from '@/components/pokewordle-game';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Pokewordle: Adivina el Pokémon Diario',
+  description:
+    '¿Fan de Pokémon y Wordle? Juega Pokewordle, el desafío diario para adivinar criaturas con pistas de tipo, generación y estadísticas. ¡Juega gratis!',
+  keywords: 'Pokewordle, Pokémon Wordle, Adivina el Pokémon, Juego Pokémon diario, Reto Pokémon',
+};
+
 export default function Home() {
-  return <></>;
+  const correctPokemon = getDailyPokemon();
+
+  return (
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-background p-4 text-foreground">
+      <div className="w-full max-w-2xl">
+        <header className="py-8 text-center">
+          <h1 className="font-headline text-4xl font-bold tracking-tight text-primary-foreground sm:text-5xl md:text-6xl">
+            Pokewordle
+          </h1>
+          <p className="mt-4 text-lg text-muted-foreground sm:text-xl">
+            Adivina el Pokémon diario en 6 intentos.
+          </p>
+        </header>
+
+        <main>
+          <PokewordleGame correctPokemon={correctPokemon} pokemonList={POKEMON_LIST} />
+        </main>
+      </div>
+      <footer className="w-full p-8 text-center text-muted-foreground">
+        <p>&copy; {new Date().getFullYear()} Pokewordle. ¡Vuelve mañana por un nuevo desafío!</p>
+      </footer>
+    </div>
+  );
 }
