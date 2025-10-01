@@ -18,8 +18,8 @@ export default function Home() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-transparent p-4 text-foreground">
       <Image
-        src="https://i.imgur.com/8L3iS8s.png"
-        alt="Pokemon background"
+        src="https://picsum.photos/seed/pokebackground/1920/1080"
+        alt="Pokemon landscape background"
         fill
         className="object-cover -z-10"
         data-ai-hint="pokemon landscape"
@@ -30,7 +30,7 @@ export default function Home() {
           <h1 className="font-headline text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl">
             Pokedle pero para Maricones🏳️‍🌈
           </h1>
-          <p className="mt-4 text-lg text-neutral-200 sm:text-xl">
+          <p className="mt-4 text-lg text-white sm:text-xl">
             El Pokémon de ayer fue: <span className="font-bold text-white">{yesterdaysPokemon}</span>
           </p>
         </header>
