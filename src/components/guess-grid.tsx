@@ -60,7 +60,7 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
 
             return (
               <div key={index} className="grid grid-cols-7 gap-2 animate-in fade-in-50">
-                <div className="flex items-center justify-start h-12 rounded-md bg-muted font-semibold text-left p-1 gap-1">
+                <div className="flex items-center justify-start h-12 rounded-md bg-secondary/80 font-semibold text-secondary-foreground text-left p-1 gap-1">
                   {guessedPokemonStats?.photoUrl && (
                     <Image src={guessedPokemonStats.photoUrl} alt={guess} width={40} height={40} className="shrink-0" />
                   )}
