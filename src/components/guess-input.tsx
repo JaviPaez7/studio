@@ -50,14 +50,23 @@ export function GuessInput({ pokemonList, onSubmit, disabled }: GuessInputProps)
     resolver: zodResolver(FormSchema),
   })
 
-  function handleFormSubmit(data: z.infer<typeof FormSchema>) {
-    onSubmit(data.pokemon)
-    form.reset({ pokemon: "" })
+  function handleSelect(currentValue: string) {
+    const value = form.getValues("pokemon")
+    const newValue = currentValue === value ? "" : currentValue
+    
+    if (newValue) {
+      onSubmit(newValue);
+    }
+    
+    // We don't reset the form here to allow the user to see what they selected
+    // The parent component is responsible for the game flow.
+    setOpen(false);
   }
 
+  // We keep the form to handle the popover state and structure, but submit is manual
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="flex w-full items-start space-x-2">
+      <form onSubmit={(e) => e.preventDefault()} className="flex w-full items-start space-x-2">
         <FormField
           control={form.control}
           name="pokemon"
@@ -76,11 +85,7 @@ export function GuessInput({ pokemonList, onSubmit, disabled }: GuessInputProps)
                       )}
                       disabled={disabled}
                     >
-                      {field.value
-                        ? pokemonList.find(
-                            (p) => p.name.toLowerCase() === field.value.toLowerCase()
-                          )?.name
-                        : "Escribe un nombre de Pokémon..."}
+                      {disabled ? 'Adivinando...' : 'Escribe un nombre de Pokémon...'}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </FormControl>
@@ -95,10 +100,7 @@ export function GuessInput({ pokemonList, onSubmit, disabled }: GuessInputProps)
                           <CommandItem
                             value={pokemon.name}
                             key={pokemon.id}
-                            onSelect={(currentValue) => {
-                              form.setValue("pokemon", currentValue === field.value ? "" : currentValue)
-                              setOpen(false)
-                            }}
+                            onSelect={handleSelect}
                           >
                              <Image src={pokemon.spriteUrl} alt={pokemon.name} width={24} height={24} className="mr-2"/>
                             {pokemon.name}
@@ -119,9 +121,6 @@ export function GuessInput({ pokemonList, onSubmit, disabled }: GuessInputProps)
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={disabled} className="bg-accent hover:bg-accent/90">
-          {disabled ? '...' : '¡Intentar!'}
-        </Button>
       </form>
     </Form>
   )
