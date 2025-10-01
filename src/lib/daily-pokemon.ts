@@ -18,3 +18,13 @@ export function getDailyPokemon(): string {
   const index = Math.abs(seed) % POKEMON_LIST.length;
   return POKEMON_LIST[index];
 }
+
+export function getYesterdaysPokemon(): string {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const dateString = yesterday.toDateString();
+  const seed = simpleHash(dateString);
+  const index = Math.abs(seed) % POKEMON_LIST.length;
+  return POKEMON_LIST[index];
+}

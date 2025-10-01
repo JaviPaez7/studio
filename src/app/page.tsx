@@ -1,4 +1,4 @@
-import { getDailyPokemon } from '@/lib/daily-pokemon';
+import { getDailyPokemon, getYesterdaysPokemon } from '@/lib/daily-pokemon';
 import { POKEMON_LIST } from '@/lib/pokemon';
 import { PokewordleGame } from '@/components/pokewordle-game';
 import type { Metadata } from 'next';
@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   const correctPokemon = getDailyPokemon();
+  const yesterdaysPokemon = getYesterdaysPokemon();
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-transparent p-4 text-foreground">
@@ -30,7 +31,7 @@ export default function Home() {
             Pokewordle
           </h1>
           <p className="mt-4 text-lg text-neutral-300 sm:text-xl">
-            Adivina el Pokémon diario en 6 intentos.
+            El Pokémon de ayer fue: <span className="font-bold">{yesterdaysPokemon}</span>
           </p>
         </header>
 
