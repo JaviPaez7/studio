@@ -64,7 +64,7 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
                   {guessedPokemonStats?.photoUrl && (
                     <Image src={guessedPokemonStats.photoUrl} alt={guess} width={40} height={40} className="shrink-0" />
                   )}
-                  <span className="truncate">{guess}</span>
+                  <span className="flex-1 text-xs break-words">{guess}</span>
                 </div>
                 {statKeys.map((key, i) => {
                   const feedbackKey = feedbackKeys[i];
