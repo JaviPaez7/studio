@@ -1,4 +1,10 @@
-export const POKEMON_LIST: string[] = [
+export interface Pokemon {
+  id: number;
+  name: string;
+  spriteUrl: string;
+}
+
+const POKEMON_NAMES: string[] = [
   "Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard", 
   "Squirtle", "Wartortle", "Blastoise", "Caterpie", "Metapod", "Butterfree",
   "Weedle", "Kakuna", "Beedrill", "Pidgey", "Pidgeotto", "Pidgeot", "Rattata", 
@@ -23,3 +29,11 @@ export const POKEMON_LIST: string[] = [
   "Omastar", "Kabuto", "Kabutops", "Aerodactyl", "Snorlax", "Articuno",
   "Zapdos", "Moltres", "Dratini", "Dragonair", "Dragonite", "Mewtwo", "Mew"
 ];
+
+export const POKEMON_LIST: Pokemon[] = POKEMON_NAMES.map((name, index) => ({
+  id: index + 1,
+  name: name,
+  spriteUrl: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index + 1}.png`
+}));
+
+export const POKEMON_NAME_LIST: string[] = POKEMON_NAMES;

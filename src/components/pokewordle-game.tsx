@@ -10,6 +10,7 @@ import { ResultsModal } from "./results-modal";
 import { useToast } from "@/hooks/use-toast";
 import { RefreshCw } from "lucide-react";
 import { Button } from "./ui/button";
+import type { Pokemon } from "@/lib/pokemon";
 
 type GameStatus = "playing" | "won";
 type GameState = {
@@ -21,10 +22,11 @@ type GameState = {
 
 interface PokewordleGameProps {
   correctPokemon: string;
-  pokemonList: string[];
+  pokemonList: Pokemon[];
+  pokemonNameList: string[];
 }
 
-export function PokewordleGame({ correctPokemon, pokemonList }: PokewordleGameProps) {
+export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }: PokewordleGameProps) {
   const [guesses, setGuesses] = useState<string[]>([]);
   const [feedback, setFeedback] = useState<ValidatePokemonGuessOutput[]>([]);
   const [gameStatus, setGameStatus] = useState<GameStatus>("playing");
@@ -69,7 +71,7 @@ export function PokewordleGame({ correctPokemon, pokemonList }: PokewordleGamePr
   const handleGuess = (guess: string) => {
     if (gameStatus !== "playing") return;
 
-    if (!pokemonList.find(p => p.toLowerCase() === guess.toLowerCase())) {
+    if (!pokemonNameList.find(p => p.toLowerCase() === guess.toLowerCase())) {
       toast({
         title: "Pokémon no válido",
         description: `"${guess}" no está en la lista de Pokémon.`,

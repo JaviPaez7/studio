@@ -1,5 +1,5 @@
 import { getDailyPokemon, getYesterdaysPokemon } from '@/lib/daily-pokemon';
-import { POKEMON_LIST } from '@/lib/pokemon';
+import { POKEMON_LIST, POKEMON_NAME_LIST } from '@/lib/pokemon';
 import { PokewordleGame } from '@/components/pokewordle-game';
 import type { Metadata } from 'next';
 import Image from 'next/image';
@@ -18,7 +18,7 @@ export default function Home() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-transparent p-4 text-foreground">
       <Image
-        src="https://i.imgur.com/nO0p3Yj.png"
+        src="https://i.imgur.com/lZ7s35n.jpeg"
         alt="Pokemon landscape background"
         fill
         className="object-cover -z-10"
@@ -36,11 +36,11 @@ export default function Home() {
         </header>
 
         <main>
-          <PokewordleGame correctPokemon={correctPokemon} pokemonList={POKEMON_LIST} />
+          <PokewordleGame correctPokemon={correctPokemon} pokemonList={POKEMON_LIST} pokemonNameList={POKEMON_NAME_LIST} />
         </main>
       </div>
       <footer className="w-full p-8 text-center text-neutral-300">
-        <p>&copy; {new Date().getFullYear()} Pokewordle. ¡Vuelve mañana por un nuevo desafío!</p>
+        <p>&copy; {new Date().getFullYear()} Pollitooooo. ¡Vuelve mañana por un nuevo desafío!</p>
       </footer>
     </div>
   );

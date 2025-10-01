@@ -50,6 +50,9 @@ export function InstructionsModal() {
            <p className="pt-2 text-sm">
             Para la altura y el peso, una flecha te indicará si el valor correcto es mayor (↑) o menor (↓).
           </p>
+          <p className="pt-2 text-sm">
+            Monstesitoh o queeee
+          </p>
         </div>
       </DialogContent>
     </Dialog>

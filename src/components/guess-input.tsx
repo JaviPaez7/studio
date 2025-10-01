@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image";
 import { Check, ChevronsUpDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -28,9 +29,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import type { Pokemon } from "@/lib/pokemon";
 
 interface GuessInputProps {
-  pokemonList: string[];
+  pokemonList: Pokemon[];
   onSubmit: (guess: string) => void;
   disabled: boolean;
 }
@@ -76,8 +78,8 @@ export function GuessInput({ pokemonList, onSubmit, disabled }: GuessInputProps)
                     >
                       {field.value
                         ? pokemonList.find(
-                            (p) => p.toLowerCase() === field.value.toLowerCase()
-                          )
+                            (p) => p.name.toLowerCase() === field.value.toLowerCase()
+                          )?.name
                         : "Escribe un nombre de Pokémon..."}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -91,20 +93,21 @@ export function GuessInput({ pokemonList, onSubmit, disabled }: GuessInputProps)
                       <CommandGroup>
                         {pokemonList.map((pokemon) => (
                           <CommandItem
-                            value={pokemon}
-                            key={pokemon}
+                            value={pokemon.name}
+                            key={pokemon.id}
                             onSelect={(currentValue) => {
                               form.setValue("pokemon", currentValue === field.value ? "" : currentValue)
                               setOpen(false)
                             }}
                           >
+                             <Image src={pokemon.spriteUrl} alt={pokemon.name} width={24} height={24} className="mr-2"/>
+                            {pokemon.name}
                             <Check
                               className={cn(
-                                "mr-2 h-4 w-4",
-                                field.value && field.value.toLowerCase() === pokemon.toLowerCase() ? "opacity-100" : "opacity-0"
+                                "ml-auto h-4 w-4",
+                                field.value && field.value.toLowerCase() === pokemon.name.toLowerCase() ? "opacity-100" : "opacity-0"
                               )}
                             />
-                            {pokemon}
                           </CommandItem>
                         ))}
                       </CommandGroup>

@@ -1,4 +1,4 @@
-import { POKEMON_LIST } from './pokemon';
+import { POKEMON_NAME_LIST } from './pokemon';
 
 // Simple pseudo-random number generator to have a consistent "daily" pokemon
 function simpleHash(str: string): number {
@@ -15,8 +15,8 @@ export function getDailyPokemon(): string {
   const today = new Date();
   const dateString = today.toDateString(); // e.g., "Mon Jul 29 2024"
   const seed = simpleHash(dateString);
-  const index = Math.abs(seed) % POKEMON_LIST.length;
-  return POKEMON_LIST[index];
+  const index = Math.abs(seed) % POKEMON_NAME_LIST.length;
+  return POKEMON_NAME_LIST[index];
 }
 
 export function getYesterdaysPokemon(): string {
@@ -25,6 +25,6 @@ export function getYesterdaysPokemon(): string {
   yesterday.setDate(today.getDate() - 1);
   const dateString = yesterday.toDateString();
   const seed = simpleHash(dateString);
-  const index = Math.abs(seed) % POKEMON_LIST.length;
-  return POKEMON_LIST[index];
+  const index = Math.abs(seed) % POKEMON_NAME_LIST.length;
+  return POKEMON_NAME_LIST[index];
 }
