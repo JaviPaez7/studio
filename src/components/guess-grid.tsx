@@ -2,7 +2,7 @@
 
 import type { ValidatePokemonGuessOutput } from "@/ai/flows/validate-pokemon-guess";
 import { cn } from "@/lib/utils";
-import { Shield, ShieldPlus, Ruler, Scale, Mountain, Shell, ArrowUp, ArrowDown } from "lucide-react";
+import { Shield, ShieldPlus, Ruler, Scale, Mountain, Shell, ArrowUp, ArrowDown, Image as ImageIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 
@@ -18,13 +18,14 @@ const feedbackColorMap = {
 };
 
 const headers = [
-  { label: "Pokémon", icon: null },
-  { label: "Tipo 1", icon: Shield },
-  { label: "Tipo 2", icon: ShieldPlus },
-  { label: "Hábitat", icon: Mountain },
-  { label: "Etapa", icon: Shell },
-  { label: "Altura", icon: Ruler },
-  { label: "Peso", icon: Scale },
+    { label: "", icon: ImageIcon },
+    { label: "Pokémon", icon: null },
+    { label: "Tipo 1", icon: Shield },
+    { label: "Tipo 2", icon: ShieldPlus },
+    { label: "Hábitat", icon: Mountain },
+    { label: "Etapa", icon: Shell },
+    { label: "Altura", icon: Ruler },
+    { label: "Peso", icon: Scale },
 ];
 
 const feedbackKeys: (keyof Omit<ValidatePokemonGuessOutput, 'guessedPokemon' | 'heightDirection' | 'weightDirection'>)[] = [
@@ -45,9 +46,9 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
     <Card>
       <CardContent className="p-4">
         <div className="space-y-2">
-          <div className="grid grid-cols-7 gap-2 px-2 pb-2 border-b">
+          <div className="grid grid-cols-8 gap-2 px-2 pb-2 border-b">
             {headers.map((header, i) => (
-              <div key={i} className="flex items-center justify-center gap-2 font-headline text-sm font-bold text-center">
+              <div key={i} className={`flex items-center justify-center gap-2 font-headline text-sm font-bold text-center ${i === 1 ? 'col-span-1' : ''}`}>
                 {header.icon && <header.icon className="h-4 w-4 text-muted-foreground" />}
                 <span>{header.label}</span>
               </div>
@@ -59,12 +60,14 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
             const guessedPokemonStats = currentFeedback?.guessedPokemon;
 
             return (
-              <div key={index} className="grid grid-cols-7 gap-2 animate-in fade-in-50">
-                <div className="flex items-center justify-start h-12 rounded-md bg-secondary/80 font-semibold text-secondary-foreground text-left p-1 gap-1">
+              <div key={index} className="grid grid-cols-8 gap-2 animate-in fade-in-50">
+                <div className="flex items-center justify-center h-12 rounded-md bg-secondary/80 p-1">
                   {guessedPokemonStats?.photoUrl && (
                     <Image src={guessedPokemonStats.photoUrl} alt={guess} width={40} height={40} className="shrink-0" />
                   )}
-                  <span className="flex-1 text-xs break-words">{guess}</span>
+                </div>
+                <div className="flex items-center justify-start h-12 rounded-md bg-secondary/80 font-semibold text-secondary-foreground text-center p-1 text-sm">
+                    {guess}
                 </div>
                 {statKeys.map((key, i) => {
                   const feedbackKey = feedbackKeys[i];
@@ -95,8 +98,8 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
           })}
 
           {showEmptyState && (
-            <div className="grid grid-cols-7 gap-2">
-              {Array.from({ length: 7 }).map((_, index) => (
+            <div className="grid grid-cols-8 gap-2">
+              {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index} className="h-12 w-full rounded-md bg-secondary/50" />
               ))}
             </div>
