@@ -24,7 +24,7 @@ export default function Home() {
         data-ai-hint="pokemon landscape"
       />
       <div className="absolute inset-0 bg-black/50 -z-10" />
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-2xl bg-card/50 backdrop-blur-sm rounded-lg p-4">
         <header className="py-8 text-center">
           <h1 className="font-headline text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl">
             Pokewordle
