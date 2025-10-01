@@ -60,11 +60,11 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
 
             return (
               <div key={index} className="grid grid-cols-7 gap-2 animate-in fade-in-50">
-                <div className="flex items-center justify-center h-12 rounded-md bg-muted font-semibold text-center p-2 relative">
+                <div className="flex items-center justify-start h-12 rounded-md bg-muted font-semibold text-left p-1 gap-1">
                   {guessedPokemonStats?.photoUrl && (
-                    <Image src={guessedPokemonStats.photoUrl} alt={guess} width={40} height={40} className="absolute left-1 top-1/2 -translate-y-1/2" />
+                    <Image src={guessedPokemonStats.photoUrl} alt={guess} width={40} height={40} className="shrink-0" />
                   )}
-                  <span className="pl-8">{guess}</span>
+                  <span className="truncate">{guess}</span>
                 </div>
                 {statKeys.map((key, i) => {
                   const feedbackKey = feedbackKeys[i];
