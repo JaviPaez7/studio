@@ -11,11 +11,12 @@ import { useToast } from "@/hooks/use-toast";
 
 const MAX_GUESSES = 6;
 
-type GameStatus = "playing" | "won" | "lost";
+type GameStatus = "playing" | "won";
 type GameState = {
   guesses: string[];
   feedback: ValidatePokemonGuessOutput[];
   status: GameStatus;
+  correctPokemon: string;
 };
 
 interface PokewordleGameProps {
@@ -32,24 +33,27 @@ export function PokewordleGame({ correctPokemon, pokemonList }: PokewordleGamePr
 
   useEffect(() => {
     const today = new Date().toDateString();
-    const storedStateRaw = localStorage.getItem(`pokewordle-state-${today}`);
+    const storedStateRaw = localStorage.getItem(`pokewordle-state`);
     if (storedStateRaw) {
       try {
         const storedState: GameState = JSON.parse(storedStateRaw);
-        setGuesses(storedState.guesses);
-        setFeedback(storedState.feedback);
-        setGameStatus(storedState.status);
+        if (storedState.correctPokemon === correctPokemon) {
+          setGuesses(storedState.guesses);
+          setFeedback(storedState.feedback);
+          setGameStatus(storedState.status);
+        } else {
+          localStorage.removeItem('pokewordle-state');
+        }
       } catch (error) {
-        localStorage.removeItem(`pokewordle-state-${today}`);
+        localStorage.removeItem(`pokewordle-state`);
       }
     }
-  }, []);
+  }, [correctPokemon]);
 
   useEffect(() => {
-    const today = new Date().toDateString();
-    const stateToStore: GameState = { guesses, feedback, status: gameStatus };
-    localStorage.setItem(`pokewordle-state-${today}`, JSON.stringify(stateToStore));
-  }, [guesses, feedback, gameStatus]);
+    const stateToStore: GameState = { guesses, feedback, status: gameStatus, correctPokemon };
+    localStorage.setItem(`pokewordle-state`, JSON.stringify(stateToStore));
+  }, [guesses, feedback, gameStatus, correctPokemon]);
 
   const handleGuess = (guess: string) => {
     if (gameStatus !== "playing") return;
@@ -88,8 +92,6 @@ export function PokewordleGame({ correctPokemon, pokemonList }: PokewordleGamePr
       const isCorrect = guess.toLowerCase() === correctPokemon.toLowerCase();
       if (isCorrect) {
         setGameStatus("won");
-      } else if (newGuesses.length >= MAX_GUESSES) {
-        setGameStatus("lost");
       }
     });
   };
@@ -113,6 +115,7 @@ export function PokewordleGame({ correctPokemon, pokemonList }: PokewordleGamePr
         feedback={feedback}
         correctPokemon={correctPokemon}
         isOpen={gameStatus !== "playing"}
+        onClose={() => setGameStatus("playing")}
       />
     </div>
   );

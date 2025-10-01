@@ -13,11 +13,12 @@ import { useToast } from "@/hooks/use-toast";
 import type { ValidatePokemonGuessOutput } from "@/ai/flows/validate-pokemon-guess";
 
 interface ResultsModalProps {
-  status: "playing" | "won" | "lost";
+  status: "playing" | "won";
   guesses: string[];
   feedback: ValidatePokemonGuessOutput[];
   correctPokemon: string;
   isOpen: boolean;
+  onClose: () => void;
 }
 
 const emojiMap = {
@@ -26,8 +27,12 @@ const emojiMap = {
   gray: "⬜",
 };
 
-export function ResultsModal({ status, guesses, feedback, correctPokemon, isOpen }: ResultsModalProps) {
+export function ResultsModal({ status, guesses, feedback, correctPokemon, isOpen, onClose }: ResultsModalProps) {
   const { toast } = useToast();
+
+  if (status === 'playing') {
+    return null;
+  }
 
   const handleShare = () => {
     const feedbackGrid = feedback
@@ -39,7 +44,7 @@ export function ResultsModal({ status, guesses, feedback, correctPokemon, isOpen
       })
       .join("\n");
 
-    const shareText = `¡Adiviné el Pokémon de hoy en ${guesses.length}/6 intentos en #Pokewordle! 🏆\n\n${feedbackGrid}\n\n¿Puedes superar mi marca? ¡Juega aquí!`;
+    const shareText = `¡Adiviné el Pokémon de hoy en ${guesses.length} intentos en #Pokewordle! 🏆\n\n${feedbackGrid}\n\n¿Puedes superar mi marca? ¡Juega aquí!`;
     
     navigator.clipboard.writeText(shareText).then(() => {
       toast({
@@ -49,18 +54,22 @@ export function ResultsModal({ status, guesses, feedback, correctPokemon, isOpen
     });
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      onClose();
+    }
+  };
+
+
   return (
-    <Dialog open={isOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="font-headline text-2xl">
-            {status === 'won' ? '¡Felicidades, Maestro Pokémon!' : '¡Se te ha escapado!'}
+            ¡Felicidades, Maestro Pokémon!
           </DialogTitle>
           <DialogDescription>
-            {status === 'won' 
-              ? `Lo has logrado en ${guesses.length} intentos.`
-              : `El Pokémon de hoy era: ${correctPokemon}.`
-            }
+            Lo has logrado en ${guesses.length} intentos. El Pokémon era: ${correctPokemon}.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
@@ -68,11 +77,9 @@ export function ResultsModal({ status, guesses, feedback, correctPokemon, isOpen
             ¡Vuelve mañana por el nuevo desafío!
           </p>
         </div>
-        {status === 'won' && (
-          <DialogFooter>
-            <Button onClick={handleShare} className="w-full bg-accent hover:bg-accent/90">Compartir Resultado</Button>
-          </DialogFooter>
-        )}
+        <DialogFooter>
+          <Button onClick={handleShare} className="w-full bg-accent hover:bg-accent/90">Compartir Resultado</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
