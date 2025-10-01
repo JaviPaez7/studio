@@ -24,6 +24,9 @@ const headers = [
   { label: "Peso", icon: Scale },
 ];
 
+const feedbackKeys: (keyof ValidatePokemonGuessOutput['guessedPokemon'])[] = ['type', 'generation', 'height', 'weight'];
+
+
 export function GuessGrid({ guesses, feedback }: GuessGridProps) {
   const emptyRows = Array(6 - guesses.length).fill(null);
 
@@ -40,22 +43,39 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
             ))}
           </div>
 
-          {guesses.map((guess, index) => (
-            <div key={index} className="grid grid-cols-5 gap-2 animate-in fade-in-50">
-              <div className="flex items-center justify-center h-12 rounded-md bg-muted font-semibold text-center p-2">
-                {guess}
+          {guesses.map((guess, index) => {
+            const currentFeedback = feedback[index];
+            const feedbackValues = currentFeedback ? [
+              currentFeedback.typeFeedback,
+              currentFeedback.generationFeedback,
+              currentFeedback.heightFeedback,
+              currentFeedback.weightFeedback,
+            ] : [];
+            const guessedPokemonStats = currentFeedback?.guessedPokemon;
+
+            return (
+              <div key={index} className="grid grid-cols-5 gap-2 animate-in fade-in-50">
+                <div className="flex items-center justify-center h-12 rounded-md bg-muted font-semibold text-center p-2">
+                  {guess}
+                </div>
+                {feedbackKeys.map((key, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "h-12 w-full rounded-md flex flex-col items-center justify-center text-center p-1 text-xs sm:text-sm font-semibold text-white",
+                      currentFeedback ? feedbackColorMap[feedbackValues[i] as keyof typeof feedbackColorMap] : "bg-muted"
+                    )}
+                  >
+                    {guessedPokemonStats && (
+                      <>
+                        <span className="capitalize">{guessedPokemonStats[key]}</span>
+                      </>
+                    )}
+                  </div>
+                ))}
               </div>
-              {feedback[index] && Object.values(feedback[index]).map((fb, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "h-12 w-full rounded-md",
-                    feedbackColorMap[fb as keyof typeof feedbackColorMap]
-                  )}
-                />
-              ))}
-            </div>
-          ))}
+            )
+          })}
 
           {emptyRows.map((_, index) => (
             <div key={index} className="grid grid-cols-5 gap-2">

@@ -22,6 +22,12 @@ const ValidatePokemonGuessOutputSchema = z.object({
   generationFeedback: z.enum(['green', 'yellow', 'gray']).describe('Feedback for the Pokémon generation.'),
   heightFeedback: z.enum(['green', 'yellow', 'gray']).describe('Feedback for the Pokémon height.'),
   weightFeedback: z.enum(['green', 'yellow', 'gray']).describe('Feedback for the Pokémon weight.'),
+  guessedPokemon: z.object({
+    type: z.string().describe("The primary type of the guessed Pokémon."),
+    generation: z.string().describe("The generation of the guessed Pokémon as a roman numeral (e.g., I, II, III)."),
+    height: z.string().describe("The height of the guessed Pokémon in meters (e.g., '0.7m')."),
+    weight: z.string().describe("The weight of the guessed Pokémon in kilograms (e.g., '6.9kg')."),
+  }).describe("The stats of the guessed Pokémon."),
 });
 export type ValidatePokemonGuessOutput = z.infer<typeof ValidatePokemonGuessOutputSchema>;
 
@@ -33,7 +39,7 @@ const prompt = ai.definePrompt({
   name: 'validatePokemonGuessPrompt',
   input: {schema: ValidatePokemonGuessInputSchema},
   output: {schema: ValidatePokemonGuessOutputSchema},
-  prompt: `You are an expert Pokémon evaluator. Given a guess and the correct Pokémon, you will provide feedback on the guess.
+  prompt: `You are an expert Pokémon evaluator. Given a guess and the correct Pokémon, you will provide feedback on the guess and the stats of the guessed pokemon.
 
 Here's how the feedback works:
 
@@ -56,7 +62,7 @@ Here's how the feedback works:
 Here is the guess: {{{guess}}}
 Here is the correct Pokémon: {{{correctPokemon}}}
 
-Return a JSON object with the typeFeedback, generationFeedback, heightFeedback, and weightFeedback.`,
+Return a JSON object with the typeFeedback, generationFeedback, heightFeedback, weightFeedback, and the guessedPokemon object containing the guessed Pokémon's type, generation, height, and weight.`,
 });
 
 const validatePokemonGuessFlow = ai.defineFlow(
