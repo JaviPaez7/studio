@@ -2,7 +2,7 @@
 
 import type { ValidatePokemonGuessOutput } from "@/ai/flows/validate-pokemon-guess";
 import { cn } from "@/lib/utils";
-import { Shield, Hash, Ruler, Scale } from "lucide-react";
+import { Shield, ShieldPlus, Ruler, Scale } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface GuessGridProps {
@@ -18,13 +18,20 @@ const feedbackColorMap = {
 
 const headers = [
   { label: "Pokémon", icon: null },
-  { label: "Tipo", icon: Shield },
-  { label: "Generación", icon: Hash },
+  { label: "Tipo 1", icon: Shield },
+  { label: "Tipo 2", icon: ShieldPlus },
   { label: "Altura", icon: Ruler },
   { label: "Peso", icon: Scale },
 ];
 
-const feedbackKeys: (keyof ValidatePokemonGuessOutput['guessedPokemon'])[] = ['type', 'generation', 'height', 'weight'];
+const feedbackKeys: (keyof Omit<ValidatePokemonGuessOutput, 'guessedPokemon'>)[] = [
+    'typeFeedback', 
+    'secondaryTypeFeedback', 
+    'heightFeedback', 
+    'weightFeedback'
+];
+
+const statKeys: (keyof ValidatePokemonGuessOutput['guessedPokemon'])[] = ['type', 'secondaryType', 'height', 'weight'];
 
 
 export function GuessGrid({ guesses, feedback }: GuessGridProps) {
@@ -45,12 +52,6 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
 
           {guesses.map((guess, index) => {
             const currentFeedback = feedback[index];
-            const feedbackValues = currentFeedback ? [
-              currentFeedback.typeFeedback,
-              currentFeedback.generationFeedback,
-              currentFeedback.heightFeedback,
-              currentFeedback.weightFeedback,
-            ] : [];
             const guessedPokemonStats = currentFeedback?.guessedPokemon;
 
             return (
@@ -58,12 +59,12 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
                 <div className="flex items-center justify-center h-12 rounded-md bg-muted font-semibold text-center p-2">
                   {guess}
                 </div>
-                {feedbackKeys.map((key, i) => (
+                {statKeys.map((key, i) => (
                   <div
                     key={i}
                     className={cn(
                       "h-12 w-full rounded-md flex flex-col items-center justify-center text-center p-1 text-xs sm:text-sm font-semibold text-white",
-                      currentFeedback ? feedbackColorMap[feedbackValues[i] as keyof typeof feedbackColorMap] : "bg-muted"
+                      currentFeedback ? feedbackColorMap[currentFeedback[feedbackKeys[i]] as keyof typeof feedbackColorMap] : "bg-muted"
                     )}
                   >
                     {guessedPokemonStats && (

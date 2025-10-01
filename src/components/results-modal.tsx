@@ -31,11 +31,12 @@ export function ResultsModal({ status, guesses, feedback, correctPokemon, isOpen
 
   const handleShare = () => {
     const feedbackGrid = feedback
-      .map((fb) =>
-        Object.values(fb)
+      .map((fb) => {
+        const { guessedPokemon, ...feedbackValues } = fb;
+        return Object.values(feedbackValues)
           .map((f) => emojiMap[f as keyof typeof emojiMap])
-          .join("")
-      )
+          .join("");
+      })
       .join("\n");
 
     const shareText = `¡Adiviné el Pokémon de hoy en ${guesses.length}/6 intentos en #Pokewordle! 🏆\n\n${feedbackGrid}\n\n¿Puedes superar mi marca? ¡Juega aquí!`;
