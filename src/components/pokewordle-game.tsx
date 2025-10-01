@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useOptimistic } from "react";
 import type { ValidatePokemonGuessOutput } from "@/ai/flows/validate-pokemon-guess";
 import { submitGuessAction } from "@/app/actions";
 import { GuessInput } from "./guess-input";
@@ -27,22 +27,35 @@ interface PokewordleGameProps {
 }
 
 export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }: PokewordleGameProps) {
-  const [guesses, setGuesses] = useState<string[]>([]);
-  const [feedback, setFeedback] = useState<ValidatePokemonGuessOutput[]>([]);
-  const [gameStatus, setGameStatus] = useState<GameStatus>("playing");
+  const [state, setState] = useState<GameState>({
+    guesses: [],
+    feedback: [],
+    status: "playing",
+    correctPokemon: correctPokemon,
+  });
+  const [optimisticState, addOptimisticGuess] = useOptimistic(
+    state,
+    (currentState, { guess, feedback }: { guess: string; feedback: ValidatePokemonGuessOutput | null }) => {
+      const newGuesses = [...currentState.guesses, guess];
+      const newFeedback = [...currentState.feedback, feedback as ValidatePokemonGuessOutput];
+      return {
+        ...currentState,
+        guesses: newGuesses,
+        feedback: newFeedback,
+      };
+    }
+  );
+
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
   useEffect(() => {
-    const today = new Date().toDateString();
     const storedStateRaw = localStorage.getItem(`pokewordle-state`);
     if (storedStateRaw) {
       try {
         const storedState: GameState = JSON.parse(storedStateRaw);
         if (storedState.correctPokemon === correctPokemon) {
-          setGuesses(storedState.guesses);
-          setFeedback(storedState.feedback);
-          setGameStatus(storedState.status);
+          setState(storedState);
         } else {
           localStorage.removeItem('pokewordle-state');
         }
@@ -53,14 +66,19 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
   }, [correctPokemon]);
 
   useEffect(() => {
-    const stateToStore: GameState = { guesses, feedback, status: gameStatus, correctPokemon };
-    localStorage.setItem(`pokewordle-state`, JSON.stringify(stateToStore));
-  }, [guesses, feedback, gameStatus, correctPokemon]);
-
+    if (state.guesses.length > 0 || state.status !== 'playing') {
+      localStorage.setItem(`pokewordle-state`, JSON.stringify(state));
+    }
+  }, [state]);
+  
   const handleReset = () => {
-    setGuesses([]);
-    setFeedback([]);
-    setGameStatus("playing");
+    const newState = {
+      guesses: [],
+      feedback: [],
+      status: "playing" as GameStatus,
+      correctPokemon: correctPokemon,
+    };
+    setState(newState);
     localStorage.removeItem('pokewordle-state');
     toast({
       title: "Juego reiniciado",
@@ -69,7 +87,7 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
   };
 
   const handleGuess = (guess: string) => {
-    if (gameStatus !== "playing") return;
+    if (state.status !== "playing") return;
 
     if (!pokemonNameList.find(p => p.toLowerCase() === guess.toLowerCase())) {
       toast({
@@ -80,7 +98,7 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
       return;
     }
     
-    if (guesses.find(g => g.toLowerCase() === guess.toLowerCase())) {
+    if (state.guesses.find(g => g.toLowerCase() === guess.toLowerCase())) {
         toast({
           title: "Ya lo intentaste",
           description: `Ya has intentado con "${guess}".`,
@@ -90,22 +108,40 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
       }
 
     startTransition(async () => {
-      const result = await submitGuessAction(guess, correctPokemon);
-      if ('error' in result) {
-        toast({ title: 'Error', description: result.error, variant: 'destructive' });
-        return;
-      }
-      
-      const newGuesses = [...guesses, guess];
-      const newFeedback = [...feedback, result];
-      
-      setGuesses(newGuesses);
-      setFeedback(newFeedback);
+      // Optimistically add the guess with null feedback
+      addOptimisticGuess({ guess, feedback: null });
 
-      const isCorrect = guess.toLowerCase() === correctPokemon.toLowerCase();
-      if (isCorrect) {
-        setGameStatus("won");
-      }
+      const result = await submitGuessAction(guess, correctPokemon);
+      
+      setState((currentState) => {
+        const newGuesses = [...currentState.guesses, guess];
+        let newFeedback;
+        let newStatus = currentState.status;
+
+        if ('error' in result) {
+          toast({ title: 'Error', description: result.error, variant: 'destructive' });
+          // If there was an error, we don't add feedback.
+          // The optimistic UI will be reverted.
+          return {
+            ...currentState,
+            guesses: currentState.guesses, // Revert guesses
+            feedback: currentState.feedback, // Revert feedback
+          }
+        } else {
+          newFeedback = [...currentState.feedback, result];
+          const isCorrect = guess.toLowerCase() === correctPokemon.toLowerCase();
+          if (isCorrect) {
+            newStatus = "won";
+          }
+        }
+        
+        return {
+          ...currentState,
+          guesses: newGuesses,
+          feedback: newFeedback,
+          status: newStatus,
+        };
+      });
     });
   };
 
@@ -117,8 +153,8 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
         </Button>
         <InstructionsModal />
       </div>
-      <GuessGrid guesses={guesses} feedback={feedback} />
-      {gameStatus === "playing" && (
+      <GuessGrid guesses={optimisticState.guesses} feedback={optimisticState.feedback} />
+      {state.status === "playing" && (
         <GuessInput
           pokemonList={pokemonList}
           onSubmit={handleGuess}
@@ -126,12 +162,12 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
         />
       )}
       <ResultsModal
-        status={gameStatus}
-        guesses={guesses}
-        feedback={feedback}
+        status={state.status}
+        guesses={state.guesses}
+        feedback={state.feedback}
         correctPokemon={correctPokemon}
-        isOpen={gameStatus !== "playing"}
-        onClose={() => setGameStatus("playing")}
+        isOpen={state.status !== "playing"}
+        onClose={() => setState(s => ({...s, status: "playing" }))}
       />
     </div>
   );

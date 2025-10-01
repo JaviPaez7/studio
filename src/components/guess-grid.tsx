@@ -2,13 +2,14 @@
 
 import type { ValidatePokemonGuessOutput } from "@/ai/flows/validate-pokemon-guess";
 import { cn } from "@/lib/utils";
-import { Shield, ShieldPlus, Ruler, Scale, Mountain, Shell, ArrowUp, ArrowDown, Image as ImageIcon } from "lucide-react";
+import { Shield, ShieldPlus, Ruler, Scale, Mountain, Shell, ArrowUp, ArrowDown, Image as ImageIcon, Loader } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
+import { Skeleton } from "./ui/skeleton";
 
 interface GuessGridProps {
   guesses: string[];
-  feedback: ValidatePokemonGuessOutput[];
+  feedback: (ValidatePokemonGuessOutput | null)[];
 }
 
 const feedbackColorMap = {
@@ -59,6 +60,7 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
             {guesses.map((guess, index) => {
               const currentFeedback = feedback[index];
               const guessedPokemonStats = currentFeedback?.guessedPokemon;
+              const isLoading = !currentFeedback;
 
               return (
                 <div key={index} className="grid grid-cols-[auto_1.5fr_repeat(6,_1fr)] gap-2 animate-in fade-in-50 px-2">
@@ -66,34 +68,43 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
                     {guessedPokemonStats?.photoUrl && (
                       <Image src={guessedPokemonStats.photoUrl} alt={guess} width={40} height={40} className="shrink-0" />
                     )}
+                     {isLoading && <ImageIcon className="h-6 w-6 text-muted-foreground" />}
                   </div>
                   <div className="flex items-center justify-center h-12 rounded-md bg-secondary/80 font-semibold text-secondary-foreground text-center p-1 text-sm">
                       {guess}
                   </div>
-                  {statKeys.map((key, i) => {
-                    const feedbackKey = feedbackKeys[i];
-                    const color = currentFeedback ? feedbackColorMap[currentFeedback[feedbackKey] as keyof typeof feedbackColorMap] : "bg-muted";
+                  {isLoading ? (
+                    Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="h-12 w-full rounded-md bg-muted flex items-center justify-center">
+                            <Loader className="h-5 w-5 animate-spin text-muted-foreground" />
+                        </div>
+                    ))
+                  ) : (
+                    statKeys.map((key, i) => {
+                      const feedbackKey = feedbackKeys[i];
+                      const color = currentFeedback ? feedbackColorMap[currentFeedback[feedbackKey] as keyof typeof feedbackColorMap] : "bg-muted";
 
-                    return (
-                      <div
-                        key={i}
-                        className={cn(
-                          "h-12 w-full rounded-md flex flex-col items-center justify-center text-center p-1 text-xs sm:text-sm font-semibold text-white",
-                          color
-                        )}
-                      >
-                        {guessedPokemonStats && (
-                          <div className="flex items-center gap-1">
-                            <span className="capitalize">{guessedPokemonStats[key]}</span>
-                            {feedbackKey === 'heightFeedback' && currentFeedback.heightDirection === 'up' && <ArrowUp className="h-4 w-4" />}
-                            {feedbackKey === 'heightFeedback' && currentFeedback.heightDirection === 'down' && <ArrowDown className="h-4 w-4" />}
-                            {feedbackKey === 'weightFeedback' && currentFeedback.weightDirection === 'up' && <ArrowUp className="h-4 w-4" />}
-                            {feedbackKey === 'weightFeedback' && currentFeedback.weightDirection === 'down' && <ArrowDown className="h-4 w-4" />}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                      return (
+                        <div
+                          key={i}
+                          className={cn(
+                            "h-12 w-full rounded-md flex flex-col items-center justify-center text-center p-1 text-xs sm:text-sm font-semibold text-white",
+                            color
+                          )}
+                        >
+                          {guessedPokemonStats && (
+                            <div className="flex items-center gap-1">
+                              <span className="capitalize">{guessedPokemonStats[key]}</span>
+                              {feedbackKey === 'heightFeedback' && currentFeedback.heightDirection === 'up' && <ArrowUp className="h-4 w-4" />}
+                              {feedbackKey === 'heightFeedback' && currentFeedback.heightDirection === 'down' && <ArrowDown className="h-4 w-4" />}
+                              {feedbackKey === 'weightFeedback' && currentFeedback.weightDirection === 'up' && <ArrowUp className="h-4 w-4" />}
+                              {feedbackKey === 'weightFeedback' && currentFeedback.weightDirection === 'down' && <ArrowDown className="h-4 w-4" />}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               )
             })}
