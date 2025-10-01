@@ -20,11 +20,17 @@ export type ValidatePokemonGuessInput = z.infer<typeof ValidatePokemonGuessInput
 const ValidatePokemonGuessOutputSchema = z.object({
   typeFeedback: z.enum(['green', 'yellow', 'gray']).describe('Feedback for the Pokémon primary type.'),
   secondaryTypeFeedback: z.enum(['green', 'yellow', 'gray']).describe('Feedback for the Pokémon secondary type. Gray if it does not have one.'),
+  habitatFeedback: z.enum(['green', 'gray']).describe('Feedback for the Pokémon habitat.'),
+  evolutionStageFeedback: z.enum(['green', 'gray']).describe('Feedback for the Pokémon evolutionary stage.'),
   heightFeedback: z.enum(['green', 'yellow', 'gray']).describe('Feedback for the Pokémon height.'),
   weightFeedback: z.enum(['green', 'yellow', 'gray']).describe('Feedback for the Pokémon weight.'),
   guessedPokemon: z.object({
+    name: z.string().describe("The name of the guessed Pokémon."),
+    photoUrl: z.string().url().describe("The URL for the guessed Pokémon's sprite image."),
     type: z.string().describe("The primary type of the guessed Pokémon."),
     secondaryType: z.string().describe("The secondary type of the guessed Pokémon. 'N/A' if it does not have one."),
+    habitat: z.string().describe("The habitat of the guessed Pokémon."),
+    evolutionStage: z.string().describe("The evolutionary stage of the guessed Pokémon (e.g., 'Stage 1', 'Stage 2')."),
     height: z.string().describe("The height of the guessed Pokémon in meters (e.g., '0.7m')."),
     weight: z.string().describe("The weight of the guessed Pokémon in kilograms (e.g., '6.9kg')."),
   }).describe("The stats of the guessed Pokémon."),
@@ -40,32 +46,43 @@ const prompt = ai.definePrompt({
   input: {schema: ValidatePokemonGuessInputSchema},
   output: {schema: ValidatePokemonGuessOutputSchema},
   prompt: `You are an expert Pokémon evaluator. Given a guess and the correct Pokémon, you will provide feedback on the guess and the stats of the guessed pokemon.
+You must fetch the Pokémon data and provide a photoUrl using the official sprite from this URL format: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{pokedex_number}.png'.
 
 Here's how the feedback works:
 
-*   If the guess's primary type matches the correct Pokémon's primary type, return \"green\".
-*   If the guess's primary type is the correct Pokémon's secondary type, return \"yellow\".
-*   Otherwise, return \"gray\".
+*   **Primary Type**:
+    *   "green" if the guess's primary type matches the correct Pokémon's primary type.
+    *   "yellow" if the guess's primary type is the correct Pokémon's secondary type.
+    *   "gray" otherwise.
 
-*   For the secondary type, if the guessed pokemon has a secondary type, compare it to the correct Pokémon's types.
-*   If the secondary type matches the correct Pokémon's secondary type (or primary if it matches), return \"green\".
-*   If the secondary type matches the correct Pokémon's primary type, return \"yellow\".
-*   If the correct pokemon has no secondary type and the guessed one has, return "gray".
-*   If both pokemon don't have a secondary type, return "green".
-*   Otherwise, return \"gray\".
+*   **Secondary Type**:
+    *   "green" if the guess's secondary type matches the correct Pokémon's secondary type.
+    *   "yellow" if the guess's secondary type matches the correct Pokémon's primary type.
+    *   "green" if both Pokémon lack a secondary type.
+    *   "gray" otherwise.
 
-*   If the guess's height matches the correct Pokémon's height, return \"green\".
-*   If the guess's height is close to the correct Pokémon's height (within 20% of the correct value), return \"yellow\".
-*   Otherwise, return \"gray\".
+*   **Habitat**:
+    *   "green" if the habitat matches.
+    *   "gray" otherwise.
 
-*   If the guess's weight matches the correct Pokémon's weight, return \"green\".
-*   If the guess's weight is close to the correct Pokémon's weight (within 20% of the correct value), return \"yellow\".
-*   Otherwise, return \"gray\".
+*   **Evolutionary Stage**:
+    *   "green" if the evolutionary stage matches.
+    *   "gray" otherwise.
+
+*   **Height**:
+    *   "green" if the height is an exact match.
+    *   "yellow" if the height is within 20% of the correct value.
+    *   "gray" otherwise.
+
+*   **Weight**:
+    *   "green" if the weight is an exact match.
+    *   "yellow" if the weight is within 20% of the correct value.
+    *   "gray" otherwise.
 
 Here is the guess: {{{guess}}}
 Here is the correct Pokémon: {{{correctPokemon}}}
 
-Return a JSON object with the typeFeedback, secondaryTypeFeedback, heightFeedback, weightFeedback, and the guessedPokemon object containing the guessed Pokémon's type, secondary type, height, and weight. If a Pokémon does not have a secondary type, the value should be 'N/A'.`,
+Return a JSON object with all the feedback fields and the guessedPokemon object containing all of its stats. If a Pokémon does not have a secondary type, the value should be 'N/A'.`,
 });
 
 const validatePokemonGuessFlow = ai.defineFlow(
