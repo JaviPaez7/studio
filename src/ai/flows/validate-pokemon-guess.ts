@@ -14,6 +14,7 @@ import {z} from 'genkit';
 const ValidatePokemonGuessInputSchema = z.object({
   guess: z.string().describe('The Pokémon name guessed by the user.'),
   correctPokemon: z.string().describe('The correct Pokémon name for the day.'),
+  language: z.string().optional().describe('The language for the response (e.g., "es", "en"). Defaults to "en".'),
 });
 export type ValidatePokemonGuessInput = z.infer<typeof ValidatePokemonGuessInputSchema>;
 
@@ -49,6 +50,7 @@ const prompt = ai.definePrompt({
   output: {schema: ValidatePokemonGuessOutputSchema},
   prompt: `You are an expert Pokémon evaluator. Given a guess and the correct Pokémon, you will provide feedback on the guess and the stats of the guessed pokemon.
 You must fetch the Pokémon data and provide a photoUrl using the official sprite from this URL format: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{pokedex_number}.png'.
+The response for the guessedPokemon stats must be in the specified language: {{{language}}}.
 
 Here's how the feedback works. Use "red" for incorrect guesses.
 
@@ -84,7 +86,8 @@ Here's how the feedback works. Use "red" for incorrect guesses.
 Here is the guess: {{{guess}}}
 Here is the correct Pokémon: {{{correctPokemon}}}
 
-Return a JSON object with all the feedback fields and the guessedPokemon object containing all of its stats. If a Pokémon does not have a secondary type, the value should be 'N/A'.`,
+Return a JSON object with all the feedback fields and the guessedPokemon object containing all of its stats. If a Pokémon does not have a secondary type, the value should be 'N/A'.
+The language for the stats in the response must be: {{{language}}}.`,
 });
 
 const validatePokemonGuessFlow = ai.defineFlow(

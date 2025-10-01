@@ -7,7 +7,8 @@ export async function submitGuessAction(
   correctPokemon: string
 ): Promise<ValidatePokemonGuessOutput | { error: string }> {
   try {
-    const feedback = await validatePokemonGuess({ guess, correctPokemon });
+    // For now, we'll hardcode Spanish. Later we can pass the active locale.
+    const feedback = await validatePokemonGuess({ guess, correctPokemon, language: 'es' });
     return feedback;
   } catch (error) {
     console.error("Error in submitGuessAction:", error);
