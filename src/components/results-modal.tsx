@@ -24,7 +24,7 @@ interface ResultsModalProps {
 const emojiMap = {
   green: "🟩",
   yellow: "🟨",
-  gray: "⬜",
+  red: "🟥",
 };
 
 export function ResultsModal({ status, guesses, feedback, correctPokemon, isOpen, onClose }: ResultsModalProps) {
@@ -37,7 +37,7 @@ export function ResultsModal({ status, guesses, feedback, correctPokemon, isOpen
   const handleShare = () => {
     const feedbackGrid = feedback
       .map((fb) => {
-        const { guessedPokemon, ...feedbackValues } = fb;
+        const { guessedPokemon, heightDirection, weightDirection, ...feedbackValues } = fb;
         return Object.values(feedbackValues)
           .map((f) => emojiMap[f as keyof typeof emojiMap])
           .join("");

@@ -2,7 +2,7 @@
 
 import type { ValidatePokemonGuessOutput } from "@/ai/flows/validate-pokemon-guess";
 import { cn } from "@/lib/utils";
-import { Shield, ShieldPlus, Ruler, Scale, Mountain, Shell } from "lucide-react";
+import { Shield, ShieldPlus, Ruler, Scale, Mountain, Shell, ArrowUp, ArrowDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 
@@ -14,7 +14,7 @@ interface GuessGridProps {
 const feedbackColorMap = {
   green: "bg-green-500",
   yellow: "bg-yellow-400",
-  gray: "bg-neutral-300 dark:bg-neutral-600",
+  red: "bg-red-500",
 };
 
 const headers = [
@@ -27,17 +27,16 @@ const headers = [
   { label: "Peso", icon: Scale },
 ];
 
-const feedbackKeys: (keyof Omit<ValidatePokemonGuessOutput, 'guessedPokemon'>)[] = [
-    'typeFeedback', 
+const feedbackKeys: (keyof Omit<ValidatePokemonGuessOutput, 'guessedPokemon' | 'heightDirection' | 'weightDirection'>)[] = [
+    'typeFeedback',
     'secondaryTypeFeedback',
     'habitatFeedback',
     'evolutionStageFeedback',
-    'heightFeedback', 
+    'heightFeedback',
     'weightFeedback'
 ];
 
 const statKeys: (keyof Omit<ValidatePokemonGuessOutput['guessedPokemon'], 'name' | 'photoUrl'>)[] = ['type', 'secondaryType', 'habitat', 'evolutionStage', 'height', 'weight'];
-
 
 export function GuessGrid({ guesses, feedback }: GuessGridProps) {
   const showEmptyState = guesses.length === 0;
@@ -67,36 +66,41 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
                   )}
                   <span className="pl-8">{guess}</span>
                 </div>
-                {statKeys.map((key, i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      "h-12 w-full rounded-md flex flex-col items-center justify-center text-center p-1 text-xs sm:text-sm font-semibold text-white",
-                      currentFeedback ? feedbackColorMap[currentFeedback[feedbackKeys[i]] as keyof typeof feedbackColorMap] : "bg-muted"
-                    )}
-                  >
-                    {guessedPokemonStats && (
-                      <>
-                        <span className="capitalize">{guessedPokemonStats[key]}</span>
-                      </>
-                    )}
-                  </div>
-                ))}
+                {statKeys.map((key, i) => {
+                  const feedbackKey = feedbackKeys[i];
+                  const color = currentFeedback ? feedbackColorMap[currentFeedback[feedbackKey] as keyof typeof feedbackColorMap] : "bg-muted";
+
+                  return (
+                    <div
+                      key={i}
+                      className={cn(
+                        "h-12 w-full rounded-md flex flex-col items-center justify-center text-center p-1 text-xs sm:text-sm font-semibold text-white",
+                        color
+                      )}
+                    >
+                      {guessedPokemonStats && (
+                        <div className="flex items-center gap-1">
+                          <span className="capitalize">{guessedPokemonStats[key]}</span>
+                          {feedbackKey === 'heightFeedback' && currentFeedback.heightDirection === 'up' && <ArrowUp className="h-4 w-4" />}
+                          {feedbackKey === 'heightFeedback' && currentFeedback.heightDirection === 'down' && <ArrowDown className="h-4 w-4" />}
+                          {feedbackKey === 'weightFeedback' && currentFeedback.weightDirection === 'up' && <ArrowUp className="h-4 w-4" />}
+                          {feedbackKey === 'weightFeedback' && currentFeedback.weightDirection === 'down' && <ArrowDown className="h-4 w-4" />}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )
           })}
 
-          {showEmptyState && Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="grid grid-cols-7 gap-2">
-              <div className="h-12 w-full rounded-md bg-secondary/50" />
-              <div className="h-12 w-full rounded-md bg-secondary/50" />
-              <div className="h-12 w-full rounded-md bg-secondary/50" />
-              <div className="h-12 w-full rounded-md bg-secondary/50" />
-              <div className="h-12 w-full rounded-md bg-secondary/50" />
-              <div className="h-12 w-full rounded-md bg-secondary/50" />
-              <div className="h-12 w-full rounded-md bg-secondary/50" />
+          {showEmptyState && (
+            <div className="grid grid-cols-7 gap-2">
+              {Array.from({ length: 7 }).map((_, index) => (
+                <div key={index} className="h-12 w-full rounded-md bg-secondary/50" />
+              ))}
             </div>
-          ))}
+          )}
         </div>
       </CardContent>
     </Card>

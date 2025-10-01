@@ -18,12 +18,14 @@ const ValidatePokemonGuessInputSchema = z.object({
 export type ValidatePokemonGuessInput = z.infer<typeof ValidatePokemonGuessInputSchema>;
 
 const ValidatePokemonGuessOutputSchema = z.object({
-  typeFeedback: z.enum(['green', 'yellow', 'gray']).describe('Feedback for the Pokémon primary type.'),
-  secondaryTypeFeedback: z.enum(['green', 'yellow', 'gray']).describe('Feedback for the Pokémon secondary type. Gray if it does not have one.'),
-  habitatFeedback: z.enum(['green', 'gray']).describe('Feedback for the Pokémon habitat.'),
-  evolutionStageFeedback: z.enum(['green', 'gray']).describe('Feedback for the Pokémon evolutionary stage.'),
-  heightFeedback: z.enum(['green', 'yellow', 'gray']).describe('Feedback for the Pokémon height.'),
-  weightFeedback: z.enum(['green', 'yellow', 'gray']).describe('Feedback for the Pokémon weight.'),
+  typeFeedback: z.enum(['green', 'yellow', 'red']).describe('Feedback for the Pokémon primary type.'),
+  secondaryTypeFeedback: z.enum(['green', 'yellow', 'red']).describe('Feedback for the Pokémon secondary type. Red if it does not have one.'),
+  habitatFeedback: z.enum(['green', 'red']).describe('Feedback for the Pokémon habitat.'),
+  evolutionStageFeedback: z.enum(['green', 'red']).describe('Feedback for the Pokémon evolutionary stage.'),
+  heightFeedback: z.enum(['green', 'yellow', 'red']).describe('Feedback for the Pokémon height.'),
+  weightFeedback: z.enum(['green', 'yellow', 'red']).describe('Feedback for the Pokémon weight.'),
+  heightDirection: z.enum(['up', 'down', 'none']).describe("Direction for height. 'up' if correct is higher, 'down' if lower, 'none' otherwise."),
+  weightDirection: z.enum(['up', 'down', 'none']).describe("Direction for weight. 'up' if correct is higher, 'down' if lower, 'none' otherwise."),
   guessedPokemon: z.object({
     name: z.string().describe("The name of the guessed Pokémon."),
     photoUrl: z.string().url().describe("The URL for the guessed Pokémon's sprite image."),
@@ -48,36 +50,36 @@ const prompt = ai.definePrompt({
   prompt: `You are an expert Pokémon evaluator. Given a guess and the correct Pokémon, you will provide feedback on the guess and the stats of the guessed pokemon.
 You must fetch the Pokémon data and provide a photoUrl using the official sprite from this URL format: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{pokedex_number}.png'.
 
-Here's how the feedback works:
+Here's how the feedback works. Use "red" for incorrect guesses.
 
 *   **Primary Type**:
     *   "green" if the guess's primary type matches the correct Pokémon's primary type.
     *   "yellow" if the guess's primary type is the correct Pokémon's secondary type.
-    *   "gray" otherwise.
+    *   "red" otherwise.
 
 *   **Secondary Type**:
     *   "green" if the guess's secondary type matches the correct Pokémon's secondary type.
     *   "yellow" if the guess's secondary type matches the correct Pokémon's primary type.
     *   "green" if both Pokémon lack a secondary type.
-    *   "gray" otherwise.
+    *   "red" otherwise.
 
 *   **Habitat**:
     *   "green" if the habitat matches.
-    *   "gray" otherwise.
+    *   "red" otherwise.
 
 *   **Evolutionary Stage**:
     *   "green" if the evolutionary stage matches.
-    *   "gray" otherwise.
+    *   "red" otherwise.
 
 *   **Height**:
-    *   "green" if the height is an exact match.
-    *   "yellow" if the height is within 20% of the correct value.
-    *   "gray" otherwise.
+    *   "green" if the height is an exact match. 'heightDirection' should be 'none'.
+    *   "yellow" if the height is within 20% of the correct value. 'heightDirection' should be 'none'.
+    *   "red" otherwise. When "red", set 'heightDirection' to 'up' if the correct Pokémon is taller, or 'down' if it is shorter.
 
 *   **Weight**:
-    *   "green" if the weight is an exact match.
-    *   "yellow" if the weight is within 20% of the correct value.
-    *   "gray" otherwise.
+    *   "green" if the weight is an exact match. 'weightDirection' should be 'none'.
+    *   "yellow" if the weight is within 20% of the correct value. 'weightDirection' should be 'none'.
+    *   "red" otherwise. When "red", set 'weightDirection' to 'up' if the correct Pokémon is heavier, or 'down' if it is lighter.
 
 Here is the guess: {{{guess}}}
 Here is the correct Pokémon: {{{correctPokemon}}}
