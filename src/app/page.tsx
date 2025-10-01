@@ -15,7 +15,7 @@ export default function Home() {
   const correctPokemon = getDailyPokemon();
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center p-4">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-transparent p-4 text-foreground">
       <Image
         src="https://images.unsplash.com/photo-1613771421033-257527902a2a?q=80&w=2070&auto=format&fit=crop"
         alt="Pokemon background"
