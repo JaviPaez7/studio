@@ -28,10 +28,10 @@ export default function Home() {
       <div className="w-full max-w-4xl bg-card/50 backdrop-blur-sm rounded-lg p-4">
         <header className="py-8 text-center">
           <h1 className="font-headline text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl">
-            Pollitoooo
+            Pokedle pero para Maricones🏳️‍🌈
           </h1>
-          <p className="mt-4 text-lg text-neutral-300 sm:text-xl">
-            El Pokémon de ayer fue: <span className="font-bold">{yesterdaysPokemon}</span>
+          <p className="mt-4 text-lg text-neutral-200 sm:text-xl">
+            El Pokémon de ayer fue: <span className="font-bold text-white">{yesterdaysPokemon}</span>
           </p>
         </header>
 
