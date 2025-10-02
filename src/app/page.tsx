@@ -14,9 +14,9 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  const correctPokemonName = getDailyPokemon();
+  const correctPokemonName = getDailyPokemon('classic');
   const correctPokemon = POKEMON_LIST.find(p => p.name === correctPokemonName);
-  const yesterdaysPokemon = getYesterdaysPokemon();
+  const yesterdaysPokemon = getYesterdaysPokemon('classic');
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-transparent p-4 text-foreground">

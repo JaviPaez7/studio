@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default function SilhouettePage() {
-  const correctPokemonName = getDailyPokemon();
+  const correctPokemonName = getDailyPokemon('silhouette');
   const correctPokemon = POKEMON_LIST.find(p => p.name === correctPokemonName);
 
   return (

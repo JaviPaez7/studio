@@ -11,20 +11,20 @@ function simpleHash(str: string): number {
   return hash;
 }
 
-export function getDailyPokemon(): string {
+export function getDailyPokemon(salt: string = ''): string {
   const today = new Date();
   const dateString = today.toDateString(); // e.g., "Mon Jul 29 2024"
-  const seed = simpleHash(dateString);
+  const seed = simpleHash(dateString + salt);
   const index = Math.abs(seed) % POKEMON_NAME_LIST.length;
   return POKEMON_NAME_LIST[index];
 }
 
-export function getYesterdaysPokemon(): string {
+export function getYesterdaysPokemon(salt: string = ''): string {
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
   const dateString = yesterday.toDateString();
-  const seed = simpleHash(dateString);
+  const seed = simpleHash(dateString + salt);
   const index = Math.abs(seed) % POKEMON_NAME_LIST.length;
   return POKEMON_NAME_LIST[index];
 }
