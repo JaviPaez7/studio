@@ -14,12 +14,6 @@ import type { ValidatePokemonGuessOutput } from "@/ai/flows/validate-pokemon-gue
 
 interface ResultsModalProps {
   status: "playing" | "won";
-  stats: {
-    gamesPlayed: number;
-    wins: number;
-    currentStreak: number;
-    maxStreak: number;
-  };
   guesses: string[];
   feedback: ValidatePokemonGuessOutput[];
   correctPokemon: string;
@@ -33,18 +27,10 @@ const emojiMap = {
   red: "🟥",
 };
 
-const StatCard = ({ label, value }: { label: string; value: number }) => (
-  <div className="flex flex-col items-center justify-center rounded-lg bg-secondary p-4 text-secondary-foreground">
-    <div className="text-2xl font-bold">{value}</div>
-    <div className="text-xs font-light uppercase tracking-wider">{label}</div>
-  </div>
-);
-
-
-export function ResultsModal({ status, stats, guesses, feedback, correctPokemon, isOpen, onClose }: ResultsModalProps) {
+export function ResultsModal({ status, guesses, feedback, correctPokemon, isOpen, onClose }: ResultsModalProps) {
   const { toast } = useToast();
 
-  if (status === 'playing') {
+  if (status === 'playing' || !isOpen) {
     return null;
   }
   
@@ -93,13 +79,6 @@ export function ResultsModal({ status, stats, guesses, feedback, correctPokemon,
           </DialogDescription>
         </DialogHeader>
         
-        <div className="grid grid-cols-4 gap-2 text-center py-4">
-            <StatCard label="Jugados" value={stats.gamesPlayed} />
-            <StatCard label="Victorias" value={stats.wins} />
-            <StatCard label="Racha Actual" value={stats.currentStreak} />
-            <StatCard label="Mejor Racha" value={stats.maxStreak} />
-        </div>
-
         <DialogFooter className="flex flex-col gap-2 sm:flex-row">
           <Button onClick={handleShare} className="w-full bg-accent hover:bg-accent/90">Compartir Resultado</Button>
         </DialogFooter>

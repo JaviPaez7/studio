@@ -12,7 +12,8 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  const correctPokemon = getDailyPokemon();
+  const correctPokemonName = getDailyPokemon();
+  const correctPokemon = POKEMON_LIST.find(p => p.name === correctPokemonName);
   const yesterdaysPokemon = getYesterdaysPokemon();
 
   return (
@@ -36,7 +37,11 @@ export default function Home() {
         </header>
 
         <main>
-          <PokewordleGame correctPokemon={correctPokemon} pokemonList={POKEMON_LIST} pokemonNameList={POKEMON_NAME_LIST} />
+          <PokewordleGame 
+            correctPokemon={correctPokemon!} 
+            pokemonList={POKEMON_LIST} 
+            pokemonNameList={POKEMON_NAME_LIST} 
+          />
         </main>
       </div>
       <footer className="w-full p-8 text-center text-neutral-300">
