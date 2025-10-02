@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import { Shield, ShieldPlus, Ruler, Scale, Mountain, Shell, ArrowUp, ArrowDown, Image as ImageIcon, Loader } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import { Skeleton } from "./ui/skeleton";
 
 interface GuessGridProps {
   guesses: string[];
@@ -65,10 +64,11 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
               return (
                 <div key={index} className="grid grid-cols-[auto_1.5fr_repeat(6,_1fr)] gap-2 animate-in fade-in-50 px-2">
                   <div className="flex items-center justify-center h-12 rounded-md bg-secondary/80 p-1">
-                    {guessedPokemonStats?.photoUrl && (
+                    {guessedPokemonStats?.photoUrl ? (
                       <Image src={guessedPokemonStats.photoUrl} alt={guess} width={40} height={40} className="shrink-0" />
+                    ) : (
+                       <ImageIcon className="h-6 w-6 text-muted-foreground" />
                     )}
-                     {isLoading && <ImageIcon className="h-6 w-6 text-muted-foreground" />}
                   </div>
                   <div className="flex items-center justify-center h-12 rounded-md bg-secondary/80 font-semibold text-secondary-foreground text-center p-1 text-sm">
                       {guess}
@@ -122,3 +122,5 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
     </Card>
   );
 }
+
+    
