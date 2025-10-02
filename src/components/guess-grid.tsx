@@ -1,6 +1,6 @@
 "use client";
 
-import type { ValidatePokemonGuessOutput } from "@/ai/flows/validate-pokemon-guess";
+import type { ValidatePokemonGuessOutput } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Shield, ShieldPlus, Ruler, Scale, Mountain, Shell, ArrowUp, ArrowDown, Image as ImageIcon, Loader } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -122,5 +122,3 @@ export function GuessGrid({ guesses, feedback }: GuessGridProps) {
     </Card>
   );
 }
-
-    

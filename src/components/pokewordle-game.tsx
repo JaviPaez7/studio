@@ -1,9 +1,8 @@
 
 "use client";
 
-import { useState, useEffect, useTransition, useOptimistic } from "react";
-import type { ValidatePokemonGuessOutput } from "@/ai/flows/validate-pokemon-guess";
-import { submitGuessAction } from "@/app/actions";
+import { useState, useEffect, useTransition } from "react";
+import type { ValidatePokemonGuessOutput } from "@/lib/types";
 import { GuessInput } from "./guess-input";
 import { GuessGrid } from "./guess-grid";
 import { InstructionsModal } from "./instructions-modal";
@@ -12,15 +11,10 @@ import { useToast } from "@/hooks/use-toast";
 import { RefreshCw } from "lucide-react";
 import { Button } from "./ui/button";
 import type { Pokemon } from "@/lib/pokemon";
+import { POKEMON_DATA } from "@/lib/pokemon-data";
+import { comparePokemon } from "@/lib/comparison";
 
-type GameStatus = "playing" | "won" | "lost";
-
-type Stats = {
-  gamesPlayed: number;
-  wins: number;
-  currentStreak: number;
-  maxStreak: number;
-};
+type GameStatus = "playing" | "won";
 
 type GameState = {
   guesses: string[];
@@ -42,22 +36,7 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
     status: "playing",
     correctPokemon: correctPokemon,
   });
-  const [stats, setStats] = useState<Stats>({ gamesPlayed: 0, wins: 0, currentStreak: 0, maxStreak: 0 });
   const [isResultsModalOpen, setResultsModalOpen] = useState(false);
-
-  const [optimisticState, addOptimisticGuess] = useOptimistic(
-    state,
-    (currentState, { guess, feedback }: { guess: string; feedback: ValidatePokemonGuessOutput | null }) => {
-      const newGuesses = [...currentState.guesses, guess];
-      const newFeedback = [...currentState.feedback, feedback];
-      return {
-        ...currentState,
-        guesses: newGuesses,
-        feedback: newFeedback,
-      };
-    }
-  );
-
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
@@ -73,20 +52,13 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
             setResultsModalOpen(true);
           }
         } else {
-          // New day, new pokemon, reset state
           handleReset(false);
         }
       } catch (error) {
-        // Corrupted state, reset
         handleReset(false);
       }
     } else {
-      handleReset(false); // Reset if no state for this pokemon
-    }
-  
-    const storedStatsRaw = localStorage.getItem('pokewordle-stats');
-    if (storedStatsRaw) {
-      setStats(JSON.parse(storedStatsRaw));
+      handleReset(false);
     }
   }, [correctPokemon]);
 
@@ -100,8 +72,7 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
       };
       localStorage.setItem(`pokewordle-state-${correctPokemon.name}`, JSON.stringify(stateToStore));
     }
-    localStorage.setItem('pokewordle-stats', JSON.stringify(stats));
-  }, [state, stats]);
+  }, [state]);
   
   const handleReset = (showToast = true) => {
     const newState = {
@@ -120,26 +91,7 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
     }
   };
 
-  const handleGameEnd = (status: "won" | "lost") => {
-    const didWin = status === 'won';
-    
-    // Only update stats on the first time the game ends for this session
-    if (state.status === "playing") {
-      setStats(prevStats => {
-        const newGamesPlayed = prevStats.gamesPlayed + 1;
-        const newWins = didWin ? prevStats.wins + 1 : prevStats.wins;
-        const newCurrentStreak = didWin ? prevStats.currentStreak + 1 : 0;
-        const newMaxStreak = Math.max(prevStats.maxStreak, newCurrentStreak);
-
-        return {
-          gamesPlayed: newGamesPlayed,
-          wins: newWins,
-          currentStreak: newCurrentStreak,
-          maxStreak: newMaxStreak,
-        };
-      });
-    }
-    
+  const handleGameEnd = (status: "won") => {
     setState(prev => ({...prev, status}));
     setResultsModalOpen(true);
   };
@@ -164,41 +116,44 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
           variant: "destructive",
         });
         return;
-      }
+    }
 
-    startTransition(async () => {
-      addOptimisticGuess({ guess, feedback: null });
+    const guessedPokemonData = POKEMON_DATA.find(p => p.name.toLowerCase() === guess.toLowerCase());
+    const correctPokemonData = POKEMON_DATA.find(p => p.name.toLowerCase() === correctPokemon.name.toLowerCase());
 
-      const result = await submitGuessAction(guess, correctPokemon.name);
-      
-      if ('error' in result) {
-        toast({ title: 'Error', description: result.error, variant: 'destructive' });
-        // On error, revert the optimistic update by resetting to the last known good state
-        setState(current => ({ ...current })); 
-      } else {
-        const isCorrect = guess.toLowerCase() === correctPokemon.name.toLowerCase();
+    if (!guessedPokemonData || !correctPokemonData) {
+        toast({ title: 'Error', description: "No se pudieron encontrar los datos del Pokémon.", variant: 'destructive' });
+        return;
+    }
 
-        setState((currentState) => {
-          const guessIndex = currentState.guesses.length;
-          const newGuesses = [...currentState.guesses, guess];
-          const newFeedback = [...currentState.feedback, result];
-          
-          return {
-            ...currentState,
-            guesses: newGuesses,
-            feedback: newFeedback,
-          };
-        });
-
-        if (isCorrect) {
-          handleGameEnd("won");
+    const feedbackResult = comparePokemon(guessedPokemonData, correctPokemonData);
+    
+    const result: ValidatePokemonGuessOutput = {
+        ...feedbackResult,
+        guessedPokemon: {
+            name: guessedPokemonData.name,
+            photoUrl: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${guessedPokemonData.id}.png`,
+            type: guessedPokemonData.types[0],
+            secondaryType: guessedPokemonData.types[1] || 'N/A',
+            habitat: guessedPokemonData.habitat,
+            evolutionStage: `Stage ${guessedPokemonData.evolutionStage}`,
+            height: `${guessedPokemonData.height}m`,
+            weight: `${guessedPokemonData.weight}kg`,
         }
-      }
-    });
-  };
+    };
 
-  // Determine the correct state to display, prioritizing optimistic state while loading
-  const displayState = isPending ? optimisticState : state;
+    const isCorrect = guess.toLowerCase() === correctPokemon.name.toLowerCase();
+
+    setState((currentState) => ({
+      ...currentState,
+      guesses: [...currentState.guesses, guess],
+      feedback: [...currentState.feedback, result],
+    }));
+
+    if (isCorrect) {
+      handleGameEnd("won");
+    }
+  };
 
   return (
     <div className="w-full space-y-6">
@@ -214,13 +169,13 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
         </div>
       </div>
       
-      <GuessGrid guesses={displayState.guesses} feedback={displayState.feedback} />
+      <GuessGrid guesses={state.guesses} feedback={state.feedback} />
       
       {state.status === "playing" && (
         <GuessInput
           pokemonList={pokemonList}
           onSubmit={handleGuess}
-          disabled={isPending}
+          disabled={isPending || state.status !== 'playing'}
         />
       )}
 
@@ -235,11 +190,9 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
         guesses={state.guesses}
         feedback={state.feedback as ValidatePokemonGuessOutput[]}
         correctPokemon={correctPokemon.name}
-        stats={stats}
         isOpen={isResultsModalOpen}
         onClose={() => setResultsModalOpen(false)}
       />
     </div>
   );
 }
-

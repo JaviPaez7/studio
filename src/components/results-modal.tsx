@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import type { ValidatePokemonGuessOutput } from "@/ai/flows/validate-pokemon-guess";
+import type { ValidatePokemonGuessOutput } from "@/lib/types";
 
 interface ResultsModalProps {
   status: "playing" | "won";
@@ -40,9 +40,10 @@ export function ResultsModal({ status, guesses, feedback, correctPokemon, isOpen
     const feedbackGrid = feedback
       .map((fb) => {
         if (!fb) return '⬜️'.repeat(6);
+        // Destructure to omit properties we don't want in the grid
         const { guessedPokemon, heightDirection, weightDirection, ...feedbackValues } = fb;
-        return Object.values(feedbackValues)
-          .map((f) => emojiMap[f as keyof typeof emojiMap] || '🟥')
+        return (Object.keys(feedbackValues) as (keyof typeof feedbackValues)[])
+          .map((key) => emojiMap[feedbackValues[key]] || '🟥')
           .join("");
       })
       .join("\n");
