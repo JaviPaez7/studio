@@ -47,6 +47,8 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
     currentStreak: 0,
     maxStreak: 0,
   });
+   const [isResultsModalOpen, setResultsModalOpen] = useState(false);
+
   const [optimisticState, addOptimisticGuess] = useOptimistic(
     state,
     (currentState, { guess, feedback }: { guess: string; feedback: ValidatePokemonGuessOutput | null }) => {
@@ -75,6 +77,9 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
         const storedState: GameState = JSON.parse(storedStateRaw);
         if (storedState.correctPokemon === correctPokemon) {
           setState(storedState);
+           if (storedState.status !== "playing") {
+            setResultsModalOpen(true);
+          }
         } else {
           // New day, new pokemon, reset state but not stats
           localStorage.removeItem('pokewordle-state');
@@ -111,6 +116,7 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
   };
 
   const handleGameEnd = (didWin: boolean) => {
+    setResultsModalOpen(true);
     setStats(prevStats => {
       const newGamesPlayed = prevStats.gamesPlayed + 1;
       const newWins = didWin ? prevStats.wins + 1 : prevStats.wins;
@@ -215,8 +221,8 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
         guesses={state.guesses}
         feedback={state.feedback as ValidatePokemonGuessOutput[]}
         correctPokemon={correctPokemon}
-        isOpen={state.status !== "playing"}
-        onClose={() => { /* Modal is controlled by isOpen now */ }}
+        isOpen={isResultsModalOpen}
+        onClose={() => setResultsModalOpen(false)}
       />
     </div>
   );
