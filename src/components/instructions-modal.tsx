@@ -25,33 +25,33 @@ export function InstructionsModal() {
         </DialogHeader>
         <div className="space-y-4 py-4 text-muted-foreground">
           <p>
-            Adivina el Pokémon misterioso de hoy. ¡Puedes hacer tantos intentos como necesites!
+            ¡Adivina el Pokémon misterioso del día! Tienes intentos ilimitados para encontrarlo.
           </p>
           <p>
-            Después de cada intento, las pistas de tu Pokémon se iluminarán para mostrar qué tan cerca estás de la solución.
+            Después de cada intento, recibirás pistas de colores para guiarte hacia la respuesta correcta.
           </p>
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <div className="h-6 w-6 rounded bg-green-500" />
-              <p><span className="font-bold text-foreground">VERDE:</span> ¡Correcto! El dato coincide exactamente.</p>
+              <p><span className="font-bold text-foreground">VERDE:</span> ¡Correcto! El atributo coincide.</p>
             </div>
              <div className="flex items-center gap-2">
               <div className="h-6 w-6 rounded bg-yellow-400" />
-              <p><span className="font-bold text-foreground">AMARILLO:</span> Parcialmente Cerca. El dato está relacionado.</p>
+              <p><span className="font-bold text-foreground">AMARILLO:</span> Parcialmente correcto.</p>
             </div>
             <div className="flex items-center gap-2">
               <div className="h-6 w-6 rounded bg-red-500" />
-              <p><span className="font-bold text-foreground">ROJO:</span> Incorrecto. El dato no coincide.</p>
+              <p><span className="font-bold text-foreground">ROJO:</span> Incorrecto. El atributo no coincide.</p>
             </div>
           </div>
           <p className="pt-2 text-sm">
-            Ejemplo de pista amarilla: el tipo del Pokémon es correcto, pero no es su tipo primario, o el atributo (altura/peso) está en un rango cercano.
+            Una pista amarilla puede significar que el tipo es correcto pero no es el principal, o que la altura/peso está cerca.
           </p>
            <p className="pt-2 text-sm">
-            Para la altura y el peso, una flecha te indicará si el valor correcto es mayor (↑) o menor (↓).
+            Las flechas te indicarán si el valor correcto es más alto (↑) o más bajo (↓) para la altura y el peso.
           </p>
-          <p className="pt-2 text-sm">
-            Monstesitoh o queeee
+          <p className="pt-4 font-bold text-center text-foreground">
+            ¡Mucha suerte, entrenador!
           </p>
         </div>
       </DialogContent>

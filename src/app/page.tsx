@@ -28,7 +28,7 @@ export default function Home() {
       <div className="w-full max-w-4xl bg-card/50 backdrop-blur-sm rounded-lg p-4">
         <header className="py-8 text-center">
           <h1 className="font-headline text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl">
-            Pokedle pero para Maricones🏳️‍🌈
+            Pokewordle Diario
           </h1>
           <p className="mt-4 text-lg text-white sm:text-xl">
             El Pokémon de ayer fue: <span className="font-bold text-white">{yesterdaysPokemon}</span>
@@ -40,7 +40,7 @@ export default function Home() {
         </main>
       </div>
       <footer className="w-full p-8 text-center text-neutral-300">
-        <p>&copy; {new Date().getFullYear()} Pollitooooo. ¡Vuelve mañana por un nuevo desafío!</p>
+        <p>&copy; {new Date().getFullYear()} Pokewordle. ¡Vuelve mañana por un nuevo desafío!</p>
       </footer>
     </div>
   );

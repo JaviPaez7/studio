@@ -44,7 +44,7 @@ export function ResultsModal({ status, guesses, feedback, correctPokemon, isOpen
       })
       .join("\n");
 
-    const shareText = `¡Adiviné el Pokémon de hoy en ${guesses.length} intentos en #Pokewordle! 🏆\n\n${feedbackGrid}\n\n¿Puedes superar mi marca? ¡Juega aquí!`;
+    const shareText = `¡Adiviné el Pokémon de hoy en ${guesses.length} intentos en #Pokewordle! 🏆\n\n${feedbackGrid}\n\n¿Puedes superar mi marca? ¡Juega aquí! https://pokewordle-daily.web.app`;
     
     navigator.clipboard.writeText(shareText).then(() => {
       toast({
@@ -69,7 +69,7 @@ export function ResultsModal({ status, guesses, feedback, correctPokemon, isOpen
             ¡Felicidades, Maestro Pokémon!
           </DialogTitle>
           <DialogDescription>
-            Lo has logrado en ${guesses.length} intentos. El Pokémon era: ${correctPokemon}.
+            {`Lo has logrado en ${guesses.length} intentos. El Pokémon era: ${correctPokemon}.`}
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
