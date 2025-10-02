@@ -2,6 +2,10 @@
 
 Welcome to Pokewordle Daily, a fun and challenging Pokémon guessing game for fans of all ages! Test your Pokémon knowledge with two exciting game modes.
 
+## 🖼️ Vista Previa
+
+![Pokewordle Daily Screenshot](public/pokewor.png)
+
 ## ✨ Features
 
 -   **Two Game Modes**: Choose between Classic and Silhouette modes for different kinds of challenges.
