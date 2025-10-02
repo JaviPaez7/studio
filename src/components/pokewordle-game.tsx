@@ -34,8 +34,6 @@ interface PokewordleGameProps {
   pokemonNameList: string[];
 }
 
-const MAX_GUESSES = 6;
-
 export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }: PokewordleGameProps) {
   const [state, setState] = useState<GameState>({
     guesses: [],
@@ -167,57 +165,42 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
       
       setState((currentState) => {
         const optimisticGuessIndex = optimisticState.guesses.length - 1;
-        const currentGuesses = [...currentState.guesses];
-        const currentFeedback = [...currentState.feedback];
-
+        const newGuesses = [...currentState.guesses, guess];
+        const newFeedback = [...currentState.feedback, null];
+        
         if ('error' in result) {
           toast({ title: 'Error', description: result.error, variant: 'destructive' });
-          // Revert optimistic update
-          return { ...currentState, guesses: currentGuesses, feedback: currentFeedback };
+          return { ...currentState, guesses: state.guesses, feedback: state.feedback };
         } else {
-          // Replace optimistic null with real feedback
-          currentGuesses[optimisticGuessIndex] = guess;
-          currentFeedback[optimisticGuessIndex] = result;
-
+          newFeedback[optimisticGuessIndex] = result;
+          
           const isCorrect = guess.toLowerCase() === correctPokemon.name.toLowerCase();
           
           if (isCorrect) {
             handleGameEnd("won");
-            return {
-              ...currentState,
-              guesses: currentGuesses,
-              feedback: currentFeedback,
-              status: "won",
-            };
-          }
-
-          if (currentGuesses.length >= MAX_GUESSES) {
-            handleGameEnd("lost");
              return {
               ...currentState,
-              guesses: currentGuesses,
-              feedback: currentFeedback,
-              status: "lost",
+              guesses: newGuesses,
+              feedback: newFeedback,
+              status: "won",
             };
           }
           
           return {
             ...currentState,
-            guesses: currentGuesses,
-            feedback: currentFeedback,
+            guesses: newGuesses,
+            feedback: newFeedback,
           };
         }
       });
     });
   };
 
-  const remainingGuesses = MAX_GUESSES - optimisticState.guesses.length;
-
   return (
     <div className="w-full space-y-6">
       <div className="flex justify-between items-center gap-2">
         <div className="font-headline text-lg text-white">
-          Intentos restantes: <span className="font-bold">{remainingGuesses}</span>
+          Adivina el Pokémon de hoy. ¡Intentos ilimitados!
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={() => handleReset()} aria-label="Reiniciar juego">
