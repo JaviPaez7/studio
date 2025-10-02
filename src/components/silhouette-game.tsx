@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -29,22 +30,22 @@ export function SilhouetteGame({ correctPokemon, pokemonList }: SilhouetteGamePr
     const storedPokemonName = localStorage.getItem(`silhouette-pokemon`);
     if (storedPokemonName && storedPokemonName !== correctPokemon.name) {
       handleReset(false);
+    } else {
+        const storedStatus = localStorage.getItem(`silhouette-status-${correctPokemon.name}`) as GameStatus | null;
+        if (storedStatus) {
+            setStatus(storedStatus);
+            if (storedStatus === "won") {
+                setShowConfetti(true);
+            }
+        }
     }
-
-    const storedStatus = localStorage.getItem(`silhouette-status-${correctPokemon.name}`) as GameStatus | null;
-    if (storedStatus) {
-      setStatus(storedStatus);
-      if (storedStatus === "won") {
-        setShowConfetti(true);
-      }
-    }
+     localStorage.setItem('silhouette-pokemon', correctPokemon.name);
   }, [correctPokemon]);
 
   const handleReset = (showToast = true) => {
     setStatus("playing");
     setShowConfetti(false);
     localStorage.removeItem(`silhouette-status-${correctPokemon.name}`);
-    localStorage.setItem('silhouette-pokemon', correctPokemon.name);
     if (showToast) {
       toast({
         title: "Juego Reiniciado",
@@ -103,3 +104,4 @@ export function SilhouetteGame({ correctPokemon, pokemonList }: SilhouetteGamePr
     </div>
   );
 }
+

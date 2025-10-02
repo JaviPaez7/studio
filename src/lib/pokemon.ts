@@ -1,10 +1,17 @@
+
 export interface Pokemon {
   id: number;
   name: string;
   spriteUrl: string;
 }
 
-const POKEMON_NAMES: string[] = [
+const POKEMON_GENERATION_LIMITS = {
+  1: 151,
+  2: 251,
+  3: 386,
+};
+
+const POKEMON_NAMES_ALL: string[] = [
   "Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard", 
   "Squirtle", "Wartortle", "Blastoise", "Caterpie", "Metapod", "Butterfree",
   "Weedle", "Kakuna", "Beedrill", "Pidgey", "Pidgeotto", "Pidgeot", "Rattata", 
@@ -66,10 +73,20 @@ const POKEMON_NAMES: string[] = [
   "Rayquaza", "Jirachi", "Deoxys"
 ];
 
-export const POKEMON_LIST: Pokemon[] = POKEMON_NAMES.map((name, index) => ({
+export const POKEMON_LIST_ALL: Pokemon[] = POKEMON_NAMES_ALL.map((name, index) => ({
   id: index + 1,
   name: name,
   spriteUrl: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index + 1}.png`
 }));
 
-export const POKEMON_NAME_LIST: string[] = POKEMON_NAMES;
+export const POKEMON_NAME_LIST_ALL: string[] = POKEMON_NAMES_ALL;
+
+export function getPokemonList(generations: number = 3): Pokemon[] {
+    const limit = POKEMON_GENERATION_LIMITS[generations as keyof typeof POKEMON_GENERATION_LIMITS] || 386;
+    return POKEMON_LIST_ALL.slice(0, limit);
+}
+
+export function getPokemonNameList(generations: number = 3): string[] {
+    const limit = POKEMON_GENERATION_LIMITS[generations as keyof typeof POKEMON_GENERATION_LIMITS] || 386;
+    return POKEMON_NAME_LIST_ALL.slice(0, limit);
+}
