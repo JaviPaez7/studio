@@ -44,6 +44,7 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
   const [stats, setStats] = useState<Stats>({ gamesPlayed: 0, wins: 0, currentStreak: 0, maxStreak: 0 });
   const [isResultsModalOpen, setResultsModalOpen] = useState(false);
 
+  // Initialize optimistic state with the actual state
   const [optimisticState, addOptimisticGuess] = useOptimistic(
     state,
     (currentState, { guess, feedback }: { guess: string; feedback: ValidatePokemonGuessOutput | null }) => {
@@ -66,12 +67,12 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
       try {
         const storedState: Omit<GameState, 'correctPokemon'> & { correctPokemonName: string } = JSON.parse(storedStateRaw);
         if (storedState.correctPokemonName === correctPokemon.name) {
-          setState({ ...storedState, correctPokemon });
+          const newState = { ...storedState, correctPokemon };
+          setState(newState);
           if (storedState.status !== "playing") {
             setResultsModalOpen(true);
           }
         } else {
-          // New day, new pokemon, reset
           handleReset(false);
         }
       } catch (error) {
@@ -164,21 +165,30 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
       const result = await submitGuessAction(guess, correctPokemon.name);
       
       setState((currentState) => {
-        const optimisticGuessIndex = optimisticState.guesses.length - 1;
         const newGuesses = [...currentState.guesses, guess];
         const newFeedback = [...currentState.feedback, null];
-        
+        const guessIndex = newGuesses.length - 1;
+
         if ('error' in result) {
           toast({ title: 'Error', description: result.error, variant: 'destructive' });
-          return { ...currentState, guesses: state.guesses, feedback: state.feedback };
+          // If server call fails, revert the optimistic update by returning the original state
+          return currentState; 
         } else {
-          newFeedback[optimisticGuessIndex] = result;
+          newFeedback[guessIndex] = result;
           
           const isCorrect = guess.toLowerCase() === correctPokemon.name.toLowerCase();
           
           if (isCorrect) {
-            handleGameEnd("won");
-             return {
+            // Update stats before setting final state
+            setStats(prevStats => {
+                const newGamesPlayed = prevStats.gamesPlayed + 1;
+                const newWins = prevStats.wins + 1;
+                const newCurrentStreak = prevStats.currentStreak + 1;
+                const newMaxStreak = Math.max(prevStats.maxStreak, newCurrentStreak);
+                return { gamesPlayed: newGamesPlayed, wins: newWins, currentStreak: newCurrentStreak, maxStreak: newMaxStreak };
+            });
+            setResultsModalOpen(true);
+            return {
               ...currentState,
               guesses: newGuesses,
               feedback: newFeedback,
