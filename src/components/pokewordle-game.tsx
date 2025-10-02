@@ -12,7 +12,15 @@ import { RefreshCw } from "lucide-react";
 import { Button } from "./ui/button";
 import type { Pokemon } from "@/lib/pokemon";
 
-type GameStatus = "playing" | "won";
+const MAX_GUESSES = 6;
+
+type GameStatus = "playing" | "won" | "lost";
+type Stats = {
+  gamesPlayed: number;
+  wins: number;
+  currentStreak: number;
+  maxStreak: number;
+};
 type GameState = {
   guesses: string[];
   feedback: ValidatePokemonGuessOutput[];
@@ -33,6 +41,12 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
     status: "playing",
     correctPokemon: correctPokemon,
   });
+   const [stats, setStats] = useState<Stats>({
+    gamesPlayed: 0,
+    wins: 0,
+    currentStreak: 0,
+    maxStreak: 0,
+  });
   const [optimisticState, addOptimisticGuess] = useOptimistic(
     state,
     (currentState, { guess, feedback }: { guess: string; feedback: ValidatePokemonGuessOutput | null }) => {
@@ -50,6 +64,11 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
   const { toast } = useToast();
 
   useEffect(() => {
+    const storedStatsRaw = localStorage.getItem('pokewordle-stats');
+    if (storedStatsRaw) {
+      setStats(JSON.parse(storedStatsRaw));
+    }
+
     const storedStateRaw = localStorage.getItem(`pokewordle-state`);
     if (storedStateRaw) {
       try {
@@ -57,6 +76,7 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
         if (storedState.correctPokemon === correctPokemon) {
           setState(storedState);
         } else {
+          // New day, new pokemon, reset state but not stats
           localStorage.removeItem('pokewordle-state');
         }
       } catch (error) {
@@ -70,6 +90,10 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
       localStorage.setItem(`pokewordle-state`, JSON.stringify(state));
     }
   }, [state]);
+
+  useEffect(() => {
+    localStorage.setItem('pokewordle-stats', JSON.stringify(stats));
+  }, [stats]);
   
   const handleReset = () => {
     const newState = {
@@ -83,6 +107,22 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
     toast({
       title: "Juego reiniciado",
       description: "¡Tus intentos han sido borrados! Puedes empezar de nuevo.",
+    });
+  };
+
+  const handleGameEnd = (didWin: boolean) => {
+    setStats(prevStats => {
+      const newGamesPlayed = prevStats.gamesPlayed + 1;
+      const newWins = didWin ? prevStats.wins + 1 : prevStats.wins;
+      const newCurrentStreak = didWin ? prevStats.currentStreak + 1 : 0;
+      const newMaxStreak = Math.max(prevStats.maxStreak, newCurrentStreak);
+
+      return {
+        gamesPlayed: newGamesPlayed,
+        wins: newWins,
+        currentStreak: newCurrentStreak,
+        maxStreak: newMaxStreak,
+      };
     });
   };
 
@@ -108,7 +148,6 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
       }
 
     startTransition(async () => {
-      // Optimistically add the guess with null feedback
       addOptimisticGuess({ guess, feedback: null });
 
       const result = await submitGuessAction(guess, correctPokemon);
@@ -120,18 +159,20 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
 
         if ('error' in result) {
           toast({ title: 'Error', description: result.error, variant: 'destructive' });
-          // If there was an error, we don't add feedback.
-          // The optimistic UI will be reverted.
           return {
             ...currentState,
-            guesses: currentState.guesses, // Revert guesses
-            feedback: currentState.feedback, // Revert feedback
+            guesses: currentState.guesses,
+            feedback: currentState.feedback,
           }
         } else {
           newFeedback = [...currentState.feedback, result];
           const isCorrect = guess.toLowerCase() === correctPokemon.toLowerCase();
           if (isCorrect) {
             newStatus = "won";
+            handleGameEnd(true);
+          } else if (newGuesses.length >= MAX_GUESSES) {
+            newStatus = "lost";
+            handleGameEnd(false);
           }
         }
         
@@ -144,14 +185,21 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
       });
     });
   };
+  
+  const guessesLeft = MAX_GUESSES - optimisticState.guesses.length;
 
   return (
     <div className="w-full space-y-6">
-      <div className="flex justify-end gap-2">
-        <Button variant="ghost" size="icon" onClick={handleReset} aria-label="Reiniciar juego">
-          <RefreshCw className="h-6 w-6" />
-        </Button>
-        <InstructionsModal />
+      <div className="flex justify-between items-center">
+         <div className="text-white font-bold text-lg">
+            Intentos restantes: {guessesLeft}
+        </div>
+        <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="icon" onClick={handleReset} aria-label="Reiniciar juego">
+            <RefreshCw className="h-6 w-6" />
+            </Button>
+            <InstructionsModal />
+        </div>
       </div>
       <GuessGrid guesses={optimisticState.guesses} feedback={optimisticState.feedback} />
       {state.status === "playing" && (
@@ -163,11 +211,12 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
       )}
       <ResultsModal
         status={state.status}
+        stats={stats}
         guesses={state.guesses}
         feedback={state.feedback}
         correctPokemon={correctPokemon}
         isOpen={state.status !== "playing"}
-        onClose={() => setState(s => ({...s, status: "playing" }))}
+        onClose={() => { /* Modal is controlled by isOpen now */ }}
       />
     </div>
   );
