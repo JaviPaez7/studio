@@ -12,9 +12,7 @@ import { RefreshCw } from "lucide-react";
 import { Button } from "./ui/button";
 import type { Pokemon } from "@/lib/pokemon";
 
-const MAX_GUESSES = 6;
-
-type GameStatus = "playing" | "won" | "lost";
+type GameStatus = "playing" | "won";
 type Stats = {
   gamesPlayed: number;
   wins: number;
@@ -159,7 +157,7 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
       const result = await submitGuessAction(guess, correctPokemon);
       
       setState((currentState) => {
-        let newStatus = currentState.status;
+        let newStatus: GameStatus = currentState.status;
         let finalFeedback;
         let finalGuesses;
 
@@ -176,9 +174,6 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
           if (isCorrect) {
             newStatus = "won";
             handleGameEnd(true);
-          } else if (finalGuesses.length >= MAX_GUESSES) {
-            newStatus = "lost";
-            handleGameEnd(false);
           }
         }
         
@@ -191,21 +186,14 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
       });
     });
   };
-  
-  const guessesLeft = MAX_GUESSES - optimisticState.guesses.length;
 
   return (
     <div className="w-full space-y-6">
-      <div className="flex justify-between items-center">
-         <div className="text-white font-bold text-lg">
-            Intentos restantes: {guessesLeft < 0 ? 0 : guessesLeft}
-        </div>
-        <div className="flex justify-end gap-2">
-            <Button variant="ghost" size="icon" onClick={handleReset} aria-label="Reiniciar juego">
-            <RefreshCw className="h-6 w-6" />
-            </Button>
-            <InstructionsModal />
-        </div>
+      <div className="flex justify-end items-center gap-2">
+        <Button variant="ghost" size="icon" onClick={handleReset} aria-label="Reiniciar juego">
+        <RefreshCw className="h-6 w-6" />
+        </Button>
+        <InstructionsModal />
       </div>
       <GuessGrid guesses={optimisticState.guesses} feedback={optimisticState.feedback} />
       {state.status === "playing" && (
@@ -227,5 +215,3 @@ export function PokewordleGame({ correctPokemon, pokemonList, pokemonNameList }:
     </div>
   );
 }
-
-    

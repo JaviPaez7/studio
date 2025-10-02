@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { ValidatePokemonGuessOutput } from "@/ai/flows/validate-pokemon-guess";
 
 interface ResultsModalProps {
-  status: "playing" | "won" | "lost";
+  status: "playing" | "won";
   stats: {
     gamesPlayed: number;
     wins: number;
@@ -79,10 +79,8 @@ export function ResultsModal({ status, stats, guesses, feedback, correctPokemon,
     }
   };
 
-  const title = isWin ? "¡Felicidades, Maestro Pokémon!" : "¡Oh, no! Inténtalo de nuevo";
-  const description = isWin
-    ? `Lo has logrado en ${guesses.length} intentos. El Pokémon era: ${correctPokemon}.`
-    : `No te preocupes. El Pokémon era: ${correctPokemon}. ¡Mañana tendrás otra oportunidad!`;
+  const title = "¡Felicidades, Maestro Pokémon!";
+  const description = `Lo has logrado en ${guesses.length} intentos. El Pokémon era: ${correctPokemon}.`;
 
 
   return (
